@@ -67,21 +67,25 @@ Bootstrap the `crates/ripenv/` crate inside the uv workspace.
 
 Improvements identified during code review to solidify the skeleton before Phase 1.
 
-- [ ] **Add `--verbose` / `--quiet` integration tests** -- S
+- [x] **Add `--verbose` / `--quiet` integration tests** -- S
   - Test that `--quiet` suppresses warnings, `--verbose` enables debug output
   - Test that errors are always printed even with `--quiet`
 
-- [ ] **Add Pipfile test fixtures directory** -- S
+- [x] **Add Pipfile test fixtures directory** -- S
   - Create `crates/ripenv/tests/fixtures/` with sample Pipfiles for Phase 1 integration tests
   - Include: minimal Pipfile, Pipfile with dev deps, Pipfile with multiple sources, Pipfile with
     VCS/editable deps
 
-- [ ] **Add `ripenv version` integration test** -- S
+- [x] **Add `ripenv version` integration test** -- S
   - Verify `ripenv --version` outputs the expected version string
 
-- [ ] **Add `Pipfile` module stub** -- S
+- [x] **Add `Pipfile` module stub** -- S
   - Create empty `crates/ripenv/src/pipfile/mod.rs` module with data model structs placeholder
   - Wire into `lib.rs` so Phase 1 can begin immediately
+
+- [x] **Add pipenv/ripenv CLI parity tests** -- S
+  - Verify all subcommand names, flag names, and exit codes match pipenv behavior
+  - Verify Pipfile fixture parsing with data model structs
 
 - [ ] **Windows cross-compilation check** -- S
   - Run `cargo xwin clippy -p ripenv` to verify no platform-specific issues

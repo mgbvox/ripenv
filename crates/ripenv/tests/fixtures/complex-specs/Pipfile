@@ -1,0 +1,21 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+requests = {version = ">=2.32.0", extras = ["security"]}
+urllib3 = ">=2.6.0"
+stdeb = {version = "*", sys_platform = "== 'linux'"}
+colorama = {version = "*", sys_platform = "== 'win32'"}
+legacy-cgi = {version = "*", markers = "python_version >= '3.13'"}
+
+[dev-packages]
+pipenv = {path = ".", editable = true, extras = ["tests", "dev"]}
+pre-commit = "==2.*"
+
+[requires]
+python_version = "3.12"
+
+[pipenv]
+allow_prereleases = true

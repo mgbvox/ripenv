@@ -1,0 +1,15 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+requests = ">=2.32.0"
+my-git-pkg = {git = "https://github.com/example/my-git-pkg.git", ref = "main"}
+my-local-pkg = {path = "./local-pkg", editable = true}
+
+[dev-packages]
+pytest = "*"
+
+[requires]
+python_version = "3.12"

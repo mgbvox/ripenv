@@ -1,0 +1,18 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+flask = "*"
+
+[dev-packages]
+pytest = "*"
+
+[scripts]
+test = "pytest -vvs"
+serve = "flask run --debug"
+lint = "ruff check ."
+
+[requires]
+python_version = "3.12"
