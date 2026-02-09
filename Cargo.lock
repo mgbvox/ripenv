@@ -3954,6 +3954,34 @@ dependencies = [
 ]
 
 [[package]]
+name = "ripenv"
+version = "0.1.0"
+dependencies = [
+ "anstream",
+ "anyhow",
+ "assert_cmd",
+ "assert_fs",
+ "clap",
+ "fs-err",
+ "indoc",
+ "insta",
+ "owo-colors",
+ "predicates",
+ "regex",
+ "serde",
+ "tempfile",
+ "tokio",
+ "toml",
+ "tracing",
+ "uv-configuration",
+ "uv-distribution-types",
+ "uv-normalize",
+ "uv-pep440",
+ "uv-pep508",
+ "uv-workspace",
+]
+
+[[package]]
 name = "rkyv"
 version = "0.8.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"

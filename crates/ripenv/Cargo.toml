@@ -1,0 +1,44 @@
+[package]
+name = "ripenv"
+version = "0.1.0"
+description = "A pipenv-compatible CLI powered by uv"
+edition = { workspace = true }
+rust-version = { workspace = true }
+homepage = { workspace = true }
+repository = { workspace = true }
+authors = { workspace = true }
+license = { workspace = true }
+default-run = "ripenv"
+
+[lints]
+workspace = true
+
+[dependencies]
+anstream = { workspace = true }
+anyhow = { workspace = true }
+clap = { workspace = true, features = ["derive", "string", "wrap_help"] }
+fs-err = { workspace = true }
+owo-colors = { workspace = true }
+serde = { workspace = true }
+tokio = { workspace = true }
+toml = { workspace = true }
+tracing = { workspace = true }
+
+uv-configuration = { workspace = true }
+uv-distribution-types = { workspace = true }
+uv-normalize = { workspace = true }
+uv-pep440 = { workspace = true }
+uv-pep508 = { workspace = true }
+uv-workspace = { workspace = true }
+
+[dev-dependencies]
+assert_cmd = { workspace = true }
+assert_fs = { workspace = true }
+indoc = { workspace = true }
+insta = { workspace = true }
+predicates = { workspace = true }
+regex = { workspace = true }
+tempfile = { workspace = true }
+
+[features]
+default = []
