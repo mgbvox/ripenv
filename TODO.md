@@ -112,7 +112,7 @@ This maps:
 
 ### 1A. Pipfile Parser & Virtual PyProjectToml Bridge
 
-- [ ] **Define Pipfile data model structs** -- M
+- [x] **Define Pipfile data model structs** -- M
   - Dependencies: Phase 0 complete
   - Reuse: `uv-pep508` (dependency specifiers), `uv-pep440` (version specifiers), `uv-normalize`
     (package names)
@@ -125,20 +125,20 @@ This maps:
   - Notes: use `serde` + `toml` for deserialization; packages can be a version string `"*"` or a
     table `{version = ">=1.0", extras = ["security"]}`
 
-- [ ] **Implement Pipfile reader (TOML -> structs)** -- M
+- [x] **Implement Pipfile reader (TOML -> structs)** -- M
   - Dependencies: data model structs
   - Reuse: `toml` crate (already in workspace)
   - New code: `Pipfile::from_path(path: &Path) -> Result<Pipfile>`, handle both string and table
     package specs
   - Tests: parse real-world Pipfile examples; round-trip fidelity
 
-- [ ] **Implement Pipfile writer (structs -> TOML)** -- M
+- [x] **Implement Pipfile writer (structs -> TOML)** -- M
   - Dependencies: data model structs
   - Reuse: `toml` crate serialization
   - New code: `Pipfile::write(&self, path: &Path) -> Result<()>`; preserve section ordering
   - Notes: needed for `ripenv install <pkg>` which modifies Pipfile
 
-- [ ] **Implement `pipfile_to_project` bridge** -- L
+- [x] **Implement `pipfile_to_project` bridge** -- L
   - Dependencies: Pipfile reader works
   - Reuse: `uv-workspace::PyProjectToml`, `uv-workspace::Project`, `uv-workspace::ToolUv`,
     `uv-distribution-types::Index`
@@ -151,7 +151,7 @@ This maps:
       `ToolUv { index, sources }`
   - Tests: cover all pipenv dep spec variants; verify uv accepts the virtual pyproject
 
-- [ ] **Pipfile discovery (walk up directories)** -- S
+- [x] **Pipfile discovery (walk up directories)** -- S
   - Dependencies: Phase 0
   - Reuse: `uv-workspace` project discovery patterns
   - New code: walk from CWD upward looking for `Pipfile`; respect `PIPENV_MAX_DEPTH` and

@@ -5,7 +5,7 @@
 //!
 //! ## Architecture
 //!
-//! The central function is [`pipfile_to_project`] (Phase 1), which maps:
+//! The central function is [`bridge::pipfile_to_pyproject_toml`], which maps:
 //!
 //! - `[packages]` -> `[project.dependencies]`
 //! - `[dev-packages]` -> `[dependency-groups.dev]`
@@ -14,6 +14,11 @@
 //!
 //! This allows ripenv to reuse uv's project machinery unmodified.
 
+pub mod bridge;
+pub mod discovery;
 pub mod model;
+mod writer;
 
+pub use bridge::pipfile_to_pyproject_toml;
+pub use discovery::{find_pipfile, project_name_from_dir, project_root};
 pub use model::Pipfile;
