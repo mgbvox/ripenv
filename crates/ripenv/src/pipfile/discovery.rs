@@ -79,7 +79,7 @@ mod tests {
     fn find_pipfile_in_current_dir() {
         let dir = TempDir::new().unwrap();
         let pipfile = dir.path().join("Pipfile");
-        std::fs::write(&pipfile, "# empty").unwrap();
+        fs_err::write(&pipfile, "# empty").unwrap();
 
         let found = find_pipfile(dir.path()).unwrap();
         assert_eq!(found, pipfile);
@@ -89,10 +89,10 @@ mod tests {
     fn find_pipfile_in_parent_dir() {
         let dir = TempDir::new().unwrap();
         let pipfile = dir.path().join("Pipfile");
-        std::fs::write(&pipfile, "# empty").unwrap();
+        fs_err::write(&pipfile, "# empty").unwrap();
 
         let subdir = dir.path().join("src");
-        std::fs::create_dir(&subdir).unwrap();
+        fs_err::create_dir(&subdir).unwrap();
 
         let found = find_pipfile(&subdir).unwrap();
         assert_eq!(found, pipfile);

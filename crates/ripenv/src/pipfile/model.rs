@@ -76,7 +76,7 @@ pub enum PipfilePackage {
 }
 
 /// Extended package specification fields.
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Default, Deserialize)]
 pub struct PipfilePackageDetail {
     /// Version specifier (e.g., `">=1.0"`, `"*"`).
     pub version: Option<String>,

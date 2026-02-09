@@ -68,7 +68,10 @@ fn upgrade_alias_works() {
 
 #[test]
 fn stub_commands_return_failure() {
-    for subcommand in ["install", "lock", "sync", "audit", "verify", "scripts"] {
+    // These commands are still stubs (Phase 3+).
+    // Implemented commands (install, lock, sync, etc.) now fail with exit 2
+    // when no Pipfile is present, which is correct behavior.
+    for subcommand in ["audit", "verify", "scripts"] {
         let mut cmd = crate::common::ripenv_command();
         cmd.arg(subcommand);
 
@@ -78,6 +81,23 @@ fn stub_commands_return_failure() {
             output.status.code(),
             Some(1),
             "{subcommand} should return exit code 1 (not yet implemented)"
+        );
+    }
+}
+
+#[test]
+fn implemented_commands_fail_without_pipfile() {
+    // Implemented commands require a Pipfile; without one they exit with code 2.
+    for subcommand in ["install", "lock", "sync", "update", "uninstall"] {
+        let mut cmd = crate::common::ripenv_command();
+        cmd.arg(subcommand);
+
+        let output = cmd.output().expect("Failed to execute ripenv");
+
+        assert_eq!(
+            output.status.code(),
+            Some(2),
+            "{subcommand} should return exit code 2 (no Pipfile found)"
         );
     }
 }

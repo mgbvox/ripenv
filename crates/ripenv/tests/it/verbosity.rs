@@ -2,8 +2,10 @@ use crate::common::ripenv_command;
 
 #[test]
 fn quiet_suppresses_stub_warning() {
+    // `install` is now implemented and fails with "No Pipfile found" (exit 2).
+    // Use a still-stubbed command to test that --quiet suppresses stub warnings.
     let mut cmd = ripenv_command();
-    cmd.args(["--quiet", "install"]);
+    cmd.args(["--quiet", "scripts"]);
 
     let output = cmd.output().expect("Failed to execute ripenv");
     let stderr = String::from_utf8_lossy(&output.stderr);
@@ -32,8 +34,9 @@ fn quiet_suppresses_check_deprecation() {
 
 #[test]
 fn verbose_flag_accepted() {
+    // Use a still-stubbed command to verify -v is accepted.
     let mut cmd = ripenv_command();
-    cmd.args(["--verbose", "install"]);
+    cmd.args(["--verbose", "scripts"]);
 
     let output = cmd.output().expect("Failed to execute ripenv");
     let stderr = String::from_utf8_lossy(&output.stderr);
@@ -48,8 +51,9 @@ fn verbose_flag_accepted() {
 
 #[test]
 fn double_verbose_accepted() {
+    // Use a still-stubbed command to verify -vv is accepted.
     let mut cmd = ripenv_command();
-    cmd.args(["-vv", "install"]);
+    cmd.args(["-vv", "scripts"]);
 
     let output = cmd.output().expect("Failed to execute ripenv");
 

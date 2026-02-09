@@ -21,6 +21,7 @@ use crate::printer::Printer;
 
 pub mod cli;
 pub mod commands;
+pub mod pipfile;
 pub mod printer;
 
 /// Entry point for the ripenv CLI.
@@ -49,7 +50,12 @@ where
             .build()
             .expect("failed to build tokio runtime");
 
-        let result = runtime.block_on(commands::dispatch(cli.command, printer));
+        let result = runtime.block_on(commands::dispatch(
+            cli.command,
+            printer,
+            cli.verbose,
+            cli.quiet,
+        ));
 
         runtime.shutdown_background();
         result

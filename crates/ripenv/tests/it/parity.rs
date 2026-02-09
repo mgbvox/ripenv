@@ -69,10 +69,10 @@ fn version_output_format_matches_pipenv() {
 #[test]
 fn quiet_flag_parity() {
     // pipenv: -q / --quiet suppresses output
-    // ripenv: same behavior
+    // ripenv: same behavior. Use a stub command to verify suppression.
     for flag in ["-q", "--quiet"] {
         let mut cmd = ripenv_command();
-        cmd.args([flag, "install"]);
+        cmd.args([flag, "scripts"]);
 
         let output = cmd.output().expect("Failed to execute ripenv");
         let stderr = String::from_utf8_lossy(&output.stderr);
@@ -87,10 +87,10 @@ fn quiet_flag_parity() {
 #[test]
 fn verbose_flag_parity() {
     // pipenv: -v / --verbose increases output
-    // ripenv: same flags accepted
+    // ripenv: same flags accepted. Use a stub command to verify acceptance.
     for flag in ["-v", "--verbose"] {
         let mut cmd = ripenv_command();
-        cmd.args([flag, "install"]);
+        cmd.args([flag, "scripts"]);
 
         let output = cmd.output().expect("Failed to execute ripenv");
 

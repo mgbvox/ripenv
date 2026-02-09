@@ -166,27 +166,27 @@ the corresponding uv project command. **uv.lock is the lockfile.**
 
 ### install
 
-- [ ] **`ripenv install` (no args) -- sync from lock** -- M
+- [x] **`ripenv install` (no args) -- sync from lock** -- M
   - Dependencies: Pipfile bridge
   - Reuse: `uv sync` logic (`crates/uv/src/commands/project/sync.rs`)
   - New code: build virtual pyproject, pass to uv sync
   - Flags: `--dev` (include dev deps, default true), `--system`, `--deploy` (fail if lock is stale)
 
-- [ ] **`ripenv install <PACKAGES>` -- add packages** -- M
+- [x] **`ripenv install <PACKAGES>` -- add packages** -- M
   - Dependencies: Pipfile reader/writer, bridge
   - Reuse: `uv add` logic (`crates/uv/src/commands/project/add.rs`), `uv lock`, `uv sync`
   - New code: parse package specs, add to Pipfile `[packages]` or `[dev-packages]`, build virtual
     pyproject, delegate to uv add+lock+sync
   - Flags: `--dev`, `--editable`, `--pre`, `--skip-lock`, `--index`
 
-- [ ] **`ripenv install -r requirements.txt`** -- S
+- [x] **`ripenv install -r requirements.txt`** -- S
   - Dependencies: install command
   - Reuse: `uv-requirements` (requirements.txt parser)
   - New code: parse requirements.txt, add each dep to Pipfile, delegate to install
 
 ### uninstall
 
-- [ ] **`ripenv uninstall <PACKAGES>`** -- M
+- [x] **`ripenv uninstall <PACKAGES>`** -- M
   - Dependencies: Pipfile reader/writer, bridge
   - Reuse: `uv remove` logic (`crates/uv/src/commands/project/remove.rs`)
   - New code: remove from Pipfile, rebuild virtual pyproject, delegate to uv remove+lock+sync
@@ -194,7 +194,7 @@ the corresponding uv project command. **uv.lock is the lockfile.**
 
 ### lock
 
-- [ ] **`ripenv lock`** -- M
+- [x] **`ripenv lock`** -- M
   - Dependencies: Pipfile bridge
   - Reuse: `uv lock` logic (`crates/uv/src/commands/project/lock.rs`), `uv-resolver`
   - New code: build virtual pyproject, delegate to uv lock -> produces uv.lock
@@ -202,7 +202,7 @@ the corresponding uv project command. **uv.lock is the lockfile.**
 
 ### sync
 
-- [ ] **`ripenv sync`** -- M
+- [x] **`ripenv sync`** -- M
   - Dependencies: Pipfile bridge
   - Reuse: `uv sync` logic, `uv-installer`
   - New code: build virtual pyproject, delegate to uv sync from uv.lock
@@ -210,7 +210,7 @@ the corresponding uv project command. **uv.lock is the lockfile.**
 
 ### update
 
-- [ ] **`ripenv update [PACKAGES]`** -- M
+- [x] **`ripenv update [PACKAGES]`** -- M
   - Dependencies: lock + sync commands
   - Reuse: composes lock + sync
   - New code: orchestration; if packages specified, only update those (pass constraints to resolver)
@@ -219,7 +219,7 @@ the corresponding uv project command. **uv.lock is the lockfile.**
 
 ### run
 
-- [ ] **`ripenv run <COMMAND>`** -- M
+- [x] **`ripenv run <COMMAND>`** -- M
   - Dependencies: Phase 0, Pipfile reader (for `[scripts]`)
   - Reuse: `uv run` logic (`crates/uv/src/commands/project/run.rs`)
   - New code:
