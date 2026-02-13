@@ -461,7 +461,7 @@ impl InitSettings {
 
 /// The source of a lock check operation.
 #[derive(Debug, Clone, Copy)]
-pub(crate) enum LockCheckSource {
+pub enum LockCheckSource {
     /// The user invoked `uv <command> --locked`
     LockedCli,
     /// The `UV_LOCKED` environment variable was set.
@@ -485,7 +485,7 @@ impl std::fmt::Display for LockCheckSource {
 
 // Has lock check been enabled?
 #[derive(Debug, Clone, Copy)]
-pub(crate) enum LockCheck {
+pub enum LockCheck {
     /// Lockfile check is enabled.
     Enabled(LockCheckSource),
     /// Lockfile check is disabled.
@@ -494,7 +494,7 @@ pub(crate) enum LockCheck {
 
 /// The source of the frozen flag.
 #[derive(Debug, Clone, Copy)]
-pub(crate) enum FrozenSource {
+pub enum FrozenSource {
     /// The `--frozen` flag was provided on CLI.
     Cli,
     /// The `UV_FROZEN` environment variable was set.
@@ -3429,22 +3429,22 @@ impl VenvSettings {
 /// Combines the `[tool.uv]` persistent configuration with the command-line arguments
 /// ([`InstallerArgs`], represented as [`InstallerOptions`]).
 #[derive(Debug, Clone)]
-pub(crate) struct InstallerSettingsRef<'a> {
-    pub(crate) index_locations: &'a IndexLocations,
-    pub(crate) index_strategy: IndexStrategy,
-    pub(crate) keyring_provider: KeyringProviderType,
-    pub(crate) dependency_metadata: &'a DependencyMetadata,
-    pub(crate) config_setting: &'a ConfigSettings,
-    pub(crate) config_settings_package: &'a PackageConfigSettings,
-    pub(crate) build_isolation: &'a BuildIsolation,
-    pub(crate) extra_build_dependencies: &'a ExtraBuildDependencies,
-    pub(crate) extra_build_variables: &'a ExtraBuildVariables,
-    pub(crate) exclude_newer: &'a ExcludeNewer,
-    pub(crate) link_mode: LinkMode,
-    pub(crate) compile_bytecode: bool,
-    pub(crate) reinstall: &'a Reinstall,
-    pub(crate) build_options: &'a BuildOptions,
-    pub(crate) sources: NoSources,
+pub struct InstallerSettingsRef<'a> {
+    pub index_locations: &'a IndexLocations,
+    pub index_strategy: IndexStrategy,
+    pub keyring_provider: KeyringProviderType,
+    pub dependency_metadata: &'a DependencyMetadata,
+    pub config_setting: &'a ConfigSettings,
+    pub config_settings_package: &'a PackageConfigSettings,
+    pub build_isolation: &'a BuildIsolation,
+    pub extra_build_dependencies: &'a ExtraBuildDependencies,
+    pub extra_build_variables: &'a ExtraBuildVariables,
+    pub exclude_newer: &'a ExcludeNewer,
+    pub link_mode: LinkMode,
+    pub compile_bytecode: bool,
+    pub reinstall: &'a Reinstall,
+    pub build_options: &'a BuildOptions,
+    pub sources: NoSources,
 }
 
 /// The resolved settings to use for an invocation of the uv CLI when resolving dependencies.
@@ -3452,25 +3452,25 @@ pub(crate) struct InstallerSettingsRef<'a> {
 /// Combines the `[tool.uv]` persistent configuration with the command-line arguments
 /// ([`ResolverArgs`], represented as [`ResolverOptions`]).
 #[derive(Debug, Clone, Default)]
-pub(crate) struct ResolverSettings {
-    pub(crate) build_options: BuildOptions,
-    pub(crate) config_setting: ConfigSettings,
-    pub(crate) config_settings_package: PackageConfigSettings,
-    pub(crate) dependency_metadata: DependencyMetadata,
-    pub(crate) exclude_newer: ExcludeNewer,
-    pub(crate) fork_strategy: ForkStrategy,
-    pub(crate) index_locations: IndexLocations,
-    pub(crate) index_strategy: IndexStrategy,
-    pub(crate) keyring_provider: KeyringProviderType,
-    pub(crate) link_mode: LinkMode,
-    pub(crate) build_isolation: BuildIsolation,
-    pub(crate) extra_build_dependencies: ExtraBuildDependencies,
-    pub(crate) extra_build_variables: ExtraBuildVariables,
-    pub(crate) prerelease: PrereleaseMode,
-    pub(crate) resolution: ResolutionMode,
-    pub(crate) sources: NoSources,
-    pub(crate) torch_backend: Option<TorchMode>,
-    pub(crate) upgrade: Upgrade,
+pub struct ResolverSettings {
+    pub build_options: BuildOptions,
+    pub config_setting: ConfigSettings,
+    pub config_settings_package: PackageConfigSettings,
+    pub dependency_metadata: DependencyMetadata,
+    pub exclude_newer: ExcludeNewer,
+    pub fork_strategy: ForkStrategy,
+    pub index_locations: IndexLocations,
+    pub index_strategy: IndexStrategy,
+    pub keyring_provider: KeyringProviderType,
+    pub link_mode: LinkMode,
+    pub build_isolation: BuildIsolation,
+    pub extra_build_dependencies: ExtraBuildDependencies,
+    pub extra_build_variables: ExtraBuildVariables,
+    pub prerelease: PrereleaseMode,
+    pub resolution: ResolutionMode,
+    pub sources: NoSources,
+    pub torch_backend: Option<TorchMode>,
+    pub upgrade: Upgrade,
 }
 
 impl ResolverSettings {
@@ -3544,10 +3544,10 @@ impl From<ResolverOptions> for ResolverSettings {
 /// Represents the shared settings that are used across all uv commands outside the `pip` API.
 /// Analogous to the settings contained in the `[tool.uv]` table, combined with [`ResolverInstallerArgs`].
 #[derive(Debug, Clone, Default)]
-pub(crate) struct ResolverInstallerSettings {
-    pub(crate) resolver: ResolverSettings,
-    pub(crate) compile_bytecode: bool,
-    pub(crate) reinstall: Reinstall,
+pub struct ResolverInstallerSettings {
+    pub resolver: ResolverSettings,
+    pub compile_bytecode: bool,
+    pub reinstall: Reinstall,
 }
 
 impl ResolverInstallerSettings {

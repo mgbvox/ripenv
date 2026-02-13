@@ -68,11 +68,11 @@ pub(crate) mod export;
 pub(crate) mod format;
 pub(crate) mod init;
 mod install_target;
-pub(crate) mod lock;
+pub mod lock;
 mod lock_target;
 pub(crate) mod remove;
-pub(crate) mod run;
-pub(crate) mod sync;
+pub mod run;
+pub mod sync;
 pub(crate) mod tree;
 pub(crate) mod version;
 

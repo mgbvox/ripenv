@@ -88,8 +88,12 @@ fn stub_commands_return_failure() {
 #[test]
 fn implemented_commands_fail_without_pipfile() {
     // Implemented commands require a Pipfile; without one they exit with code 2.
-    for subcommand in ["install", "lock", "sync", "update", "uninstall"] {
+    // Note: `install` is excluded because it auto-creates a Pipfile when missing.
+    // Use a temp dir to ensure no Pipfile exists from a prior test.
+    let dir = tempfile::TempDir::new().unwrap();
+    for subcommand in ["lock", "sync", "update", "uninstall"] {
         let mut cmd = crate::common::ripenv_command();
+        cmd.current_dir(dir.path());
         cmd.arg(subcommand);
 
         let output = cmd.output().expect("Failed to execute ripenv");

@@ -1,6 +1,11 @@
 //! `ripenv uninstall` — remove packages from the Pipfile and virtualenv.
 
 use anyhow::{Result, bail};
+use uv_cache::Refresh;
+use uv_cli::SyncFormat;
+use uv_configuration::{
+    DependencyGroups, DryRun, EditableMode, ExtrasSpecification, InstallOptions,
+};
 
 use crate::cli::UninstallArgs;
 use crate::commands::ExitStatus;
@@ -8,7 +13,7 @@ use crate::commands::uv_runner::UvContext;
 use crate::printer::Printer;
 
 /// Execute `ripenv uninstall`.
-pub fn execute(
+pub async fn execute(
     args: &UninstallArgs,
     printer: Printer,
     verbosity: u8,
@@ -52,21 +57,71 @@ pub fn execute(
     // Regenerate virtual pyproject.toml
     ctx.refresh()?;
 
+    let cache = ctx.cache()?;
+
     // Re-lock (unless --skip-lock)
     if !args.skip_lock {
-        let result = ctx.run_uv(&["lock"])?;
-        if !result.success() {
-            return Ok(ExitStatus::External(result.exit_code));
+        let result = uv::commands::project::lock::lock(
+            &ctx.project_dir,
+            uv::settings::LockCheck::Disabled,
+            None, // frozen
+            DryRun::default(),
+            Refresh::from_args(None, vec![]),
+            None, // python
+            ctx.install_mirrors(),
+            ctx.resolver_settings(),
+            ctx.client_builder(),
+            None, // script
+            ctx.python_preference(),
+            ctx.python_downloads(),
+            ctx.concurrency(),
+            false, // no_config
+            &cache,
+            ctx.uv_printer(),
+            ctx.preview(),
+        )
+        .await?;
+
+        if !matches!(result, ExitStatus::Success) {
+            return Ok(result);
         }
     }
 
     // Sync to remove unneeded packages from venv
-    let result = ctx.run_uv(&["sync"])?;
+    let result = Box::pin(uv::commands::project::sync::sync(
+        &ctx.project_dir,
+        uv::settings::LockCheck::Disabled,
+        None, // frozen
+        DryRun::default(),
+        None,   // active
+        false,  // all_packages
+        vec![], // package
+        ExtrasSpecification::default(),
+        DependencyGroups::default(),
+        Some(EditableMode::default()),
+        InstallOptions::default(),
+        uv::commands::pip::operations::Modifications::Exact,
+        None, // python
+        None, // python_platform
+        ctx.install_mirrors(),
+        ctx.python_preference(),
+        ctx.python_downloads(),
+        ctx.resolver_installer_settings(),
+        ctx.client_builder(),
+        None,  // script
+        false, // installer_metadata
+        ctx.concurrency(),
+        false, // no_config
+        &cache,
+        ctx.uv_printer(),
+        ctx.preview(),
+        SyncFormat::default(),
+    ))
+    .await?;
 
-    if result.success() {
+    if matches!(result, ExitStatus::Success) {
         ctx.printer.info("Uninstall complete.");
-        Ok(ExitStatus::Success)
-    } else {
-        Ok(ExitStatus::External(result.exit_code))
     }
+
+    Ok(result)
 }

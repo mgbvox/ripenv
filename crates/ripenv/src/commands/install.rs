@@ -5,6 +5,12 @@
 //! - With packages: add to Pipfile, then lock + sync.
 
 use anyhow::{Result, bail};
+use uv_cache::Refresh;
+use uv_cli::SyncFormat;
+use uv_configuration::{
+    DependencyGroups, DryRun, EditableMode, ExtrasSpecification, InstallOptions,
+};
+use uv_resolver::PrereleaseMode;
 
 use crate::cli::InstallArgs;
 use crate::commands::ExitStatus;
@@ -13,63 +19,121 @@ use crate::pipfile::model::{PipfilePackage, PipfilePackageDetail};
 use crate::printer::Printer;
 
 /// Execute `ripenv install`.
-pub fn execute(
+pub async fn execute(
     args: &InstallArgs,
     printer: Printer,
     verbosity: u8,
     quiet: bool,
 ) -> Result<ExitStatus> {
     if args.packages.is_empty() && args.requirements.is_none() {
-        return install_from_lockfile(args, printer, verbosity, quiet);
+        return Box::pin(install_from_lockfile(args, printer, verbosity, quiet)).await;
     }
 
-    install_packages(args, printer, verbosity, quiet)
+    Box::pin(install_packages(args, printer, verbosity, quiet)).await
 }
 
 /// `ripenv install` with no packages — sync from the lockfile.
-fn install_from_lockfile(
+async fn install_from_lockfile(
     args: &InstallArgs,
     printer: Printer,
     verbosity: u8,
     quiet: bool,
 ) -> Result<ExitStatus> {
-    let ctx = UvContext::discover(printer, verbosity, quiet)?;
+    let ctx = UvContext::discover_or_init(printer, verbosity, quiet)?;
 
     // If --deploy, verify the lockfile is up to date first
     if args.deploy {
-        let check = ctx.run_uv(&["lock", "--check"])?;
-        if !check.success() {
+        let cache = ctx.cache()?;
+        let check_result = uv::commands::project::lock::lock(
+            &ctx.project_dir,
+            uv::settings::LockCheck::Enabled(uv::settings::LockCheckSource::Check),
+            None, // frozen
+            DryRun::default(),
+            Refresh::from_args(None, vec![]),
+            None, // python
+            ctx.install_mirrors(),
+            ctx.resolver_settings(),
+            ctx.client_builder(),
+            None, // script
+            ctx.python_preference(),
+            ctx.python_downloads(),
+            ctx.concurrency(),
+            false, // no_config
+            &cache,
+            ctx.uv_printer(),
+            ctx.preview(),
+        )
+        .await?;
+        if !matches!(check_result, ExitStatus::Success) {
             bail!("Lockfile is out of date (--deploy mode). Run `ripenv lock` first.");
         }
     }
 
-    let mut uv_args = vec!["sync"];
+    let groups = DependencyGroups::from_args(
+        false,       // dev
+        args.no_dev, // no_dev
+        false,       // only_dev
+        vec![],      // group
+        vec![],      // no_group
+        false,       // no_default_groups
+        vec![],      // only_group
+        false,       // all_groups
+    );
 
-    if args.no_dev {
-        uv_args.push("--no-group=dev");
-    }
-    if args.system {
-        uv_args.push("--python-preference=system");
-    }
-
-    let result = ctx.run_uv(&uv_args)?;
-
-    if result.success() {
-        ctx.printer.info("Install complete.");
-        Ok(ExitStatus::Success)
+    let python_preference = if args.system {
+        uv_python::PythonPreference::System
     } else {
-        Ok(ExitStatus::External(result.exit_code))
+        ctx.python_preference()
+    };
+
+    let cache = ctx.cache()?;
+
+    let result = Box::pin(uv::commands::project::sync::sync(
+        &ctx.project_dir,
+        uv::settings::LockCheck::Disabled,
+        None, // frozen
+        DryRun::default(),
+        None,   // active
+        false,  // all_packages
+        vec![], // package
+        ExtrasSpecification::default(),
+        groups,
+        Some(EditableMode::default()),
+        InstallOptions::default(),
+        uv::commands::pip::operations::Modifications::Exact,
+        None, // python
+        None, // python_platform
+        ctx.install_mirrors(),
+        python_preference,
+        ctx.python_downloads(),
+        ctx.resolver_installer_settings(),
+        ctx.client_builder(),
+        None,  // script
+        false, // installer_metadata
+        ctx.concurrency(),
+        false, // no_config
+        &cache,
+        ctx.uv_printer(),
+        ctx.preview(),
+        SyncFormat::default(),
+    ))
+    .await?;
+
+    if matches!(result, ExitStatus::Success) {
+        ctx.printer.info("Install complete.");
     }
+
+    Ok(result)
 }
 
 /// `ripenv install <PACKAGES>` — add packages to Pipfile, then lock + sync.
-fn install_packages(
+async fn install_packages(
     args: &InstallArgs,
     printer: Printer,
     verbosity: u8,
     quiet: bool,
 ) -> Result<ExitStatus> {
-    let mut ctx = UvContext::discover(printer, verbosity, quiet)?;
+    let mut ctx = UvContext::discover_or_init(printer, verbosity, quiet)?;
 
     // Parse and add each package to the Pipfile
     for spec in &args.packages {
@@ -101,32 +165,89 @@ fn install_packages(
     // Regenerate virtual pyproject.toml
     ctx.refresh()?;
 
+    let cache = ctx.cache()?;
+
     // Lock (unless --skip-lock)
     if !args.skip_lock {
-        let mut lock_args = vec!["lock"];
+        let mut settings = ctx.resolver_settings();
         if args.pre {
-            lock_args.push("--prerelease=allow");
+            settings.prerelease = PrereleaseMode::Allow;
         }
-        let result = ctx.run_uv(&lock_args)?;
-        if !result.success() {
-            return Ok(ExitStatus::External(result.exit_code));
+
+        let result = uv::commands::project::lock::lock(
+            &ctx.project_dir,
+            uv::settings::LockCheck::Disabled,
+            None, // frozen
+            DryRun::default(),
+            Refresh::from_args(None, vec![]),
+            None, // python
+            ctx.install_mirrors(),
+            settings,
+            ctx.client_builder(),
+            None, // script
+            ctx.python_preference(),
+            ctx.python_downloads(),
+            ctx.concurrency(),
+            false, // no_config
+            &cache,
+            ctx.uv_printer(),
+            ctx.preview(),
+        )
+        .await?;
+
+        if !matches!(result, ExitStatus::Success) {
+            return Ok(result);
         }
     }
 
     // Sync
-    let mut sync_args = vec!["sync"];
-    if args.no_dev {
-        sync_args.push("--no-group=dev");
-    }
+    let groups = DependencyGroups::from_args(
+        false,       // dev
+        args.no_dev, // no_dev
+        false,       // only_dev
+        vec![],      // group
+        vec![],      // no_group
+        false,       // no_default_groups
+        vec![],      // only_group
+        false,       // all_groups
+    );
 
-    let result = ctx.run_uv(&sync_args)?;
+    let result = Box::pin(uv::commands::project::sync::sync(
+        &ctx.project_dir,
+        uv::settings::LockCheck::Disabled,
+        None, // frozen
+        DryRun::default(),
+        None,   // active
+        false,  // all_packages
+        vec![], // package
+        ExtrasSpecification::default(),
+        groups,
+        Some(EditableMode::default()),
+        InstallOptions::default(),
+        uv::commands::pip::operations::Modifications::Exact,
+        None, // python
+        None, // python_platform
+        ctx.install_mirrors(),
+        ctx.python_preference(),
+        ctx.python_downloads(),
+        ctx.resolver_installer_settings(),
+        ctx.client_builder(),
+        None,  // script
+        false, // installer_metadata
+        ctx.concurrency(),
+        false, // no_config
+        &cache,
+        ctx.uv_printer(),
+        ctx.preview(),
+        SyncFormat::default(),
+    ))
+    .await?;
 
-    if result.success() {
+    if matches!(result, ExitStatus::Success) {
         ctx.printer.info("Install complete.");
-        Ok(ExitStatus::Success)
-    } else {
-        Ok(ExitStatus::External(result.exit_code))
     }
+
+    Ok(result)
 }
 
 /// Parse a package spec string like `"requests"`, `"requests>=2.0"`, or `"requests[security]"`.

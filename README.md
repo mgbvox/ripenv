@@ -1,316 +1,201 @@
-# uv
+# ripenv
 
-[![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
-[![image](https://img.shields.io/pypi/v/uv.svg)](https://pypi.python.org/pypi/uv)
-[![image](https://img.shields.io/pypi/l/uv.svg)](https://pypi.python.org/pypi/uv)
-[![image](https://img.shields.io/pypi/pyversions/uv.svg)](https://pypi.python.org/pypi/uv)
-[![Actions status](https://github.com/astral-sh/uv/actions/workflows/ci.yml/badge.svg)](https://github.com/astral-sh/uv/actions)
-[![Discord](https://img.shields.io/badge/Discord-%235865F2.svg?logo=discord&logoColor=white)](https://discord.gg/astral-sh)
+A blazing-fast, pipenv-compatible CLI powered by [uv](https://github.com/astral-sh/uv).
 
-An extremely fast Python package and project manager, written in Rust.
+ripenv is a drop-in replacement for [pipenv](https://pipenv.pypa.io/) that uses uv's resolver and
+installer under the hood. It reads your existing `Pipfile`, translates it into uv's project model,
+and calls uv's library functions directly — no subprocess overhead, no shelling out.
 
-<p align="center">
-  <picture align="center">
-    <source media="(prefers-color-scheme: dark)" srcset="https://github.com/astral-sh/uv/assets/1309177/03aa9163-1c79-4a87-a31d-7a9311ed9310">
-    <source media="(prefers-color-scheme: light)" srcset="https://github.com/astral-sh/uv/assets/1309177/629e59c0-9c6e-4013-9ad4-adb2bcf5080d">
-    <img alt="Shows a bar chart with benchmark results." src="https://github.com/astral-sh/uv/assets/1309177/629e59c0-9c6e-4013-9ad4-adb2bcf5080d">
-  </picture>
-</p>
+> **Note:** This repository is a fork of [astral-sh/uv](https://github.com/astral-sh/uv). The
+> upstream uv crate is preserved in full; ripenv lives at `crates/ripenv/` as an additional
+> workspace member.
 
-<p align="center">
-  <i>Installing <a href="https://trio.readthedocs.io/">Trio</a>'s dependencies with a warm cache.</i>
-</p>
+## Why ripenv?
 
-## Highlights
-
-- A single tool to replace `pip`, `pip-tools`, `pipx`, `poetry`, `pyenv`, `twine`, `virtualenv`, and
-  more.
-- [10-100x faster](https://github.com/astral-sh/uv/blob/main/BENCHMARKS.md) than `pip`.
-- Provides [comprehensive project management](#projects), with a
-  [universal lockfile](https://docs.astral.sh/uv/concepts/projects/layout#the-lockfile).
-- [Runs scripts](#scripts), with support for
-  [inline dependency metadata](https://docs.astral.sh/uv/guides/scripts#declaring-script-dependencies).
-- [Installs and manages](#python-versions) Python versions.
-- [Runs and installs](#tools) tools published as Python packages.
-- Includes a [pip-compatible interface](#the-pip-interface) for a performance boost with a familiar
-  CLI.
-- Supports Cargo-style [workspaces](https://docs.astral.sh/uv/concepts/projects/workspaces) for
-  scalable projects.
-- Disk-space efficient, with a [global cache](https://docs.astral.sh/uv/concepts/cache) for
-  dependency deduplication.
-- Installable without Rust or Python via `curl` or `pip`.
-- Supports macOS, Linux, and Windows.
-
-uv is backed by [Astral](https://astral.sh), the creators of
-[Ruff](https://github.com/astral-sh/ruff) and [ty](https://github.com/astral-sh/ty).
+- **pipenv CLI, uv speed** — keep your `Pipfile` workflow with 10-100x faster resolution and
+  installs
+- **Zero migration** — point ripenv at your existing `Pipfile` and go
+- **Direct library calls** — ripenv calls uv's Rust APIs directly, not via subprocess
+- **Familiar commands** — `ripenv install`, `ripenv lock`, `ripenv sync`, `ripenv run`, etc.
 
 ## Installation
 
-Install uv with our standalone installers:
+### From source (recommended during development)
 
 ```bash
-# On macOS and Linux.
-curl -LsSf https://astral.sh/uv/install.sh | sh
+# Clone the repo
+git clone https://github.com/mgbvox/ripenv.git
+cd ripenv
+
+# Build release binary
+cargo build --release -p ripenv
+
+# The binary is at:
+./target/release/ripenv --help
 ```
+
+### Install to cargo bin
 
 ```bash
-# On Windows.
-powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+cargo install --path crates/ripenv
 ```
 
-Or, from [PyPI](https://pypi.org/project/uv/):
+## Usage
+
+ripenv reads your `Pipfile` and manages dependencies through uv.
 
 ```bash
-# With pip.
-pip install uv
+# Install all dependencies (lock + sync)
+ripenv install
+
+# Add a package
+ripenv install requests
+
+# Add a dev dependency
+ripenv install --dev pytest
+
+# Remove a package
+ripenv uninstall requests
+
+# Generate/update the lockfile
+ripenv lock
+
+# Sync the virtualenv to match the lockfile
+ripenv sync
+
+# Run a command in the virtualenv
+ripenv run python my_script.py
+
+# Update all dependencies
+ripenv update
+
+# Update a specific package
+ripenv update requests
 ```
+
+### Environment variables
+
+- `PIPENV_PIPFILE` — path to the Pipfile (default: auto-discovered in current/parent directories)
+
+## Building
+
+Requires Rust 1.91+ (edition 2024).
 
 ```bash
-# Or pipx.
-pipx install uv
+# Debug build (faster compile, slower runtime)
+cargo build -p ripenv
+
+# Release build (slower compile, optimized runtime)
+cargo build --release -p ripenv
+
+# Run clippy
+cargo clippy -p ripenv
+
+# Run tests
+cargo test -p ripenv
 ```
 
-If installed via the standalone installer, uv can update itself to the latest version:
+## Benchmarking
+
+A hyperfine-based benchmark suite lives in `scripts/benchmark-ripenv/` for comparing ripenv, pipenv,
+and uv across lock, sync, and install operations.
+
+### Prerequisites
+
+- [hyperfine](https://github.com/sharkdp/hyperfine): `brew install hyperfine`
+- pipenv: `pip install pipenv`
+- A release build of ripenv: `cargo build --release -p ripenv`
+
+### Quick start
 
 ```bash
-uv self update
+cd scripts/benchmark-ripenv
+
+# Run all benchmarks for the flask fixture (ripenv vs pipenv vs uv)
+RIPENV_PATH=../../target/release/ripenv ./run-benchmarks.sh flask
+
+# Results and plots are saved to scripts/benchmark-ripenv/results/flask/
 ```
 
-See the [installation documentation](https://docs.astral.sh/uv/getting-started/installation/) for
-details and alternative installation methods.
+### Detailed usage
 
-## Documentation
+```bash
+# Run specific benchmarks
+BENCHMARKS=lock-cold,lock-warm ./run-benchmarks.sh flask
 
-uv's documentation is available at [docs.astral.sh/uv](https://docs.astral.sh/uv).
+# Run on multiple fixtures
+./run-benchmarks.sh trio flask jupyter
 
-Additionally, the command line reference documentation can be viewed with `uv help`.
+# Custom binary paths
+RIPENV_PATH=../../target/release/ripenv \
+UV_PATH=../../target/release/uv \
+  ./run-benchmarks.sh trio
 
-## Features
+# Use bench-ripenv directly for fine-grained control
+uv run bench-ripenv --help
+uv run bench-ripenv --ripenv --uv -b lock-cold -b lock-warm --json trio
 
-### Projects
-
-uv manages project dependencies and environments, with support for lockfiles, workspaces, and more,
-similar to `rye` or `poetry`:
-
-```console
-$ uv init example
-Initialized project `example` at `/home/user/example`
-
-$ cd example
-
-$ uv add ruff
-Creating virtual environment at: .venv
-Resolved 2 packages in 170ms
-   Built example @ file:///home/user/example
-Prepared 2 packages in 627ms
-Installed 2 packages in 1ms
- + example==0.1.0 (from file:///home/user/example)
- + ruff==0.5.0
-
-$ uv run ruff check
-All checks passed!
-
-$ uv lock
-Resolved 2 packages in 0.33ms
-
-$ uv sync
-Resolved 2 packages in 0.70ms
-Audited 1 package in 0.02ms
+# Compare two ripenv builds
+uv run bench-ripenv \
+    --ripenv-path ../../target/release/ripenv \
+    --ripenv-path ../../target/release/ripenv-baseline \
+    flask
 ```
 
-See the [project documentation](https://docs.astral.sh/uv/guides/projects/) to get started.
+### Fixtures
 
-uv also supports building and publishing projects, even if they're not managed with uv. See the
-[publish guide](https://docs.astral.sh/uv/guides/publish/) to learn more.
+| Fixture   | Packages | Description               |
+| --------- | -------- | ------------------------- |
+| `trio`    | trio     | Lightweight async library |
+| `flask`   | flask    | Common web framework      |
+| `jupyter` | jupyter  | Heavy dependency tree     |
 
-### Scripts
+### Benchmark scenarios
 
-uv manages dependencies and environments for single-file scripts.
+| Benchmark      | Measures                        | Prepare step            |
+| -------------- | ------------------------------- | ----------------------- |
+| `lock-cold`    | Resolution, no cache            | Delete lockfile + cache |
+| `lock-warm`    | Resolution, cached metadata     | Delete lockfile only    |
+| `lock-noop`    | Lockfile already up to date     | Nothing                 |
+| `sync-cold`    | Install from lockfile, no cache | Delete venv + cache     |
+| `sync-warm`    | Install from lockfile, cached   | Delete venv only        |
+| `install-cold` | Full lock+sync, no cache        | Delete all              |
+| `install-warm` | Full lock+sync, cached          | Delete lockfile + venv  |
 
-Create a new script and add inline metadata declaring its dependencies:
-
-```console
-$ echo 'import requests; print(requests.get("https://astral.sh"))' > example.py
-
-$ uv add --script example.py requests
-Updated `example.py`
-```
-
-Then, run the script in an isolated virtual environment:
-
-```console
-$ uv run example.py
-Reading inline script metadata from: example.py
-Installed 5 packages in 12ms
-<Response [200]>
-```
-
-See the [scripts documentation](https://docs.astral.sh/uv/guides/scripts/) to get started.
-
-### Tools
-
-uv executes and installs command-line tools provided by Python packages, similar to `pipx`.
-
-Run a tool in an ephemeral environment using `uvx` (an alias for `uv tool run`):
-
-```console
-$ uvx pycowsay 'hello world!'
-Resolved 1 package in 167ms
-Installed 1 package in 9ms
- + pycowsay==0.0.0.2
-  """
-
-  ------------
-< hello world! >
-  ------------
-   \   ^__^
-    \  (oo)\_______
-       (__)\       )\/\
-           ||----w |
-           ||     ||
-```
-
-Install a tool with `uv tool install`:
-
-```console
-$ uv tool install ruff
-Resolved 1 package in 6ms
-Installed 1 package in 2ms
- + ruff==0.5.0
-Installed 1 executable: ruff
-
-$ ruff --version
-ruff 0.5.0
-```
-
-See the [tools documentation](https://docs.astral.sh/uv/guides/tools/) to get started.
-
-### Python versions
-
-uv installs Python and allows quickly switching between versions.
-
-Install multiple Python versions:
-
-```console
-$ uv python install 3.12 3.13 3.14
-Installed 3 versions in 972ms
- + cpython-3.12.12-macos-aarch64-none (python3.12)
- + cpython-3.13.9-macos-aarch64-none (python3.13)
- + cpython-3.14.0-macos-aarch64-none (python3.14)
+## Project structure
 
 ```
+crates/ripenv/          # The ripenv crate
+  src/
+    bin/ripenv.rs       # Binary entry point
+    lib.rs              # Library entry point
+    cli.rs              # CLI argument parsing (clap)
+    commands/           # Command implementations
+    pipfile/            # Pipfile parser and bridge
+  tests/it/             # Integration tests
 
-Download Python versions as needed:
-
-```console
-$ uv venv --python 3.12.0
-Using Python 3.12.0
-Creating virtual environment at: .venv
-Activate with: source .venv/bin/activate
-
-$ uv run --python pypy@3.8 -- python --version
-Python 3.8.16 (a9dbdca6fc3286b0addd2240f11d97d8e8de187a, Dec 29 2022, 11:45:30)
-[PyPy 7.3.11 with GCC Apple LLVM 13.1.6 (clang-1316.0.21.2.5)] on darwin
-Type "help", "copyright", "credits" or "license" for more information.
->>>>
+scripts/benchmark-ripenv/   # Benchmark suite
+  run-benchmarks.sh         # One-command benchmark runner + plot
+  src/benchmark_ripenv/
+    bench.py                # CLI entry point
+    plot.py                 # Result visualization
+    ripenv_suite.py         # ripenv benchmark commands
+    pipenv_suite.py         # pipenv benchmark commands
+    uv_suite.py             # uv benchmark commands
+    fixtures/               # Pipfile fixtures (trio, flask, jupyter)
 ```
-
-Use a specific Python version in the current directory:
-
-```console
-$ uv python pin 3.11
-Pinned `.python-version` to `3.11`
-```
-
-See the [Python installation documentation](https://docs.astral.sh/uv/guides/install-python/) to get
-started.
-
-### The pip interface
-
-uv provides a drop-in replacement for common `pip`, `pip-tools`, and `virtualenv` commands.
-
-uv extends their interfaces with advanced features, such as dependency version overrides,
-platform-independent resolutions, reproducible resolutions, alternative resolution strategies, and
-more.
-
-Migrate to uv without changing your existing workflows — and experience a 10-100x speedup — with the
-`uv pip` interface.
-
-Compile requirements into a platform-independent requirements file:
-
-```console
-$ uv pip compile docs/requirements.in \
-   --universal \
-   --output-file docs/requirements.txt
-Resolved 43 packages in 12ms
-```
-
-Create a virtual environment:
-
-```console
-$ uv venv
-Using Python 3.12.3
-Creating virtual environment at: .venv
-Activate with: source .venv/bin/activate
-```
-
-Install the locked requirements:
-
-```console
-$ uv pip sync docs/requirements.txt
-Resolved 43 packages in 11ms
-Installed 43 packages in 208ms
- + babel==2.15.0
- + black==24.4.2
- + certifi==2024.7.4
- ...
-```
-
-See the [pip interface documentation](https://docs.astral.sh/uv/pip/index/) to get started.
-
-## Contributing
-
-We are passionate about supporting contributors of all levels of experience and would love to see
-you get involved in the project. See the
-[contributing guide](https://github.com/astral-sh/uv?tab=contributing-ov-file#contributing) to get
-started.
-
-## FAQ
-
-#### How do you pronounce uv?
-
-It's pronounced as "you - vee" ([`/juː viː/`](https://en.wikipedia.org/wiki/Help:IPA/English#Key))
-
-#### How should I stylize uv?
-
-Just "uv", please. See the [style guide](./STYLE.md#styling-uv) for details.
-
-#### What platforms does uv support?
-
-See uv's [platform support](https://docs.astral.sh/uv/reference/platforms/) document.
-
-#### Is uv ready for production?
-
-Yes, uv is stable and widely used in production. See uv's
-[versioning policy](https://docs.astral.sh/uv/reference/versioning/) document for details.
 
 ## Acknowledgements
 
-uv's dependency resolver uses [PubGrub](https://github.com/pubgrub-rs/pubgrub) under the hood. We're
-grateful to the PubGrub maintainers, especially [Jacob Finkelman](https://github.com/Eh2406), for
-their support.
+ripenv is built on top of [uv](https://github.com/astral-sh/uv) by [Astral](https://astral.sh). This
+project would not be possible without their excellent work on fast, correct Python package
+management in Rust.
 
-uv's Git implementation is based on [Cargo](https://github.com/rust-lang/cargo).
-
-Some of uv's optimizations are inspired by the great work we've seen in [pnpm](https://pnpm.io/),
-[Orogene](https://github.com/orogene/orogene), and [Bun](https://github.com/oven-sh/bun). We've also
-learned a lot from Nathaniel J. Smith's [Posy](https://github.com/njsmith/posy) and adapted its
-[trampoline](https://github.com/njsmith/posy/tree/main/src/trampolines/windows-trampolines/posy-trampoline)
-for Windows support.
+uv's dependency resolver uses [PubGrub](https://github.com/pubgrub-rs/pubgrub) under the hood.
 
 ## License
 
-uv is licensed under either of
+ripenv is licensed under either of
 
 - Apache License, Version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or
   <https://www.apache.org/licenses/LICENSE-2.0>)
@@ -318,12 +203,6 @@ uv is licensed under either of
 
 at your option.
 
-Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in uv
-by you, as defined in the Apache-2.0 license, shall be dually licensed as above, without any
-additional terms or conditions.
-
-<div align="center">
-  <a target="_blank" href="https://astral.sh" style="background:none">
-    <img src="https://raw.githubusercontent.com/astral-sh/uv/main/assets/svg/Astral.svg" alt="Made by Astral">
-  </a>
-</div>
+Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in
+this project by you, as defined in the Apache-2.0 license, shall be dually licensed as above,
+without any additional terms or conditions.

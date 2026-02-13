@@ -77,7 +77,7 @@ use crate::settings::{FrozenSource, LockCheck, ResolverInstallerSettings, Resolv
 
 /// Run a command.
 #[expect(clippy::fn_params_excessive_bools)]
-pub(crate) async fn run(
+pub async fn run(
     project_dir: &Path,
     script: Option<Pep723Item>,
     command: Option<RunCommand>,
@@ -1416,7 +1416,7 @@ fn can_skip_ephemeral(
 }
 
 #[derive(Debug)]
-pub(crate) enum RunCommand {
+pub enum RunCommand {
     /// Execute `python`.
     Python(Vec<OsString>),
     /// Execute a `python` script.

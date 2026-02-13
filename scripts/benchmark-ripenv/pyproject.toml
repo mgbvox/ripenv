@@ -1,0 +1,17 @@
+[project]
+name = "benchmark-ripenv"
+version = "0.0.1"
+description = "Benchmark ripenv vs pipenv vs uv"
+requires-python = ">=3.12"
+dependencies = [
+  "matplotlib",
+  "tomli",
+  "tomli_w",
+]
+
+[project.scripts]
+bench-ripenv = "benchmark_ripenv.bench:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

@@ -6,10 +6,6 @@
 name = "ripenv"
 version = "0.0.0"
 dependencies = [
-    "jupyterlab",
-    "matplotlib",
-    "numpy",
-    "tqdm",
 ]
 
 [[tool.uv.index]]

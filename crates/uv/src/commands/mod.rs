@@ -83,8 +83,8 @@ mod cache_prune;
 mod cache_size;
 mod diagnostics;
 mod help;
-pub(crate) mod pip;
-mod project;
+pub mod pip;
+pub mod project;
 mod publish;
 mod python;
 pub(crate) mod reporters;
@@ -95,7 +95,7 @@ mod venv;
 mod workspace;
 
 #[derive(Copy, Clone)]
-pub(crate) enum ExitStatus {
+pub enum ExitStatus {
     /// The command succeeded.
     Success,
 
@@ -300,7 +300,7 @@ pub(super) fn capitalize(s: &str) -> String {
 /// A Python file that may or may not include an existing PEP 723 script tag.
 #[derive(Debug)]
 #[expect(clippy::large_enum_variant)]
-pub(crate) enum ScriptPath {
+pub enum ScriptPath {
     /// The Python file already includes a PEP 723 script tag.
     Script(Pep723Script),
     /// The Python file does not include a PEP 723 script tag.

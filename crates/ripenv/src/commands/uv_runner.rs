@@ -1,17 +1,21 @@
-//! Shared infrastructure for running uv subcommands.
+//! Shared infrastructure for running uv commands.
 //!
 //! All ripenv commands that delegate to uv go through this module.
-//! The [`UvRunner`] handles:
+//! The [`UvContext`] handles:
 //!
 //! 1. Discovering the Pipfile and project root
 //! 2. Generating a virtual `pyproject.toml` from the Pipfile
-//! 3. Running `uv` as a subprocess
-//! 4. Propagating exit codes and output
+//! 3. Providing uv types (Printer, Cache, etc.) for direct library calls
 
 use std::path::{Path, PathBuf};
-use std::process::Command;
 
-use anyhow::{Context, Result, bail};
+use anyhow::{Context, Result};
+use uv_cache::Cache;
+use uv_client::BaseClientBuilder;
+use uv_configuration::Concurrency;
+use uv_preview::Preview;
+use uv_python::{PythonDownloads, PythonPreference};
+use uv_settings::PythonInstallMirrors;
 
 use crate::pipfile::bridge::pipfile_to_pyproject_toml;
 use crate::pipfile::discovery::{find_pipfile, project_name_from_dir};
@@ -28,7 +32,7 @@ const GENERATED_HEADER: &str = "\
 ///
 /// Holds the parsed Pipfile, project paths, and printer configuration.
 /// All command modules create a `UvContext` via [`UvContext::discover`],
-/// then call methods like [`run_uv`] to execute uv subcommands.
+/// then use the helper methods to construct uv types for direct library calls.
 pub struct UvContext {
     /// The parsed Pipfile.
     pub pipfile: Pipfile,
@@ -38,7 +42,7 @@ pub struct UvContext {
     pub project_dir: PathBuf,
     /// Path to the generated pyproject.toml.
     pub pyproject_path: PathBuf,
-    /// Output printer.
+    /// Output printer (ripenv's own printer for ripenv-specific messages).
     pub printer: Printer,
     /// Verbosity level (0 = normal, 1+ = verbose).
     pub verbosity: u8,
@@ -54,6 +58,34 @@ impl UvContext {
     pub fn discover(printer: Printer, verbosity: u8, quiet: bool) -> Result<Self> {
         let cwd = std::env::current_dir().context("failed to get current directory")?;
         let pipfile_path = find_pipfile(&cwd)?;
+        Self::from_pipfile_path(pipfile_path, printer, verbosity, quiet)
+    }
+
+    /// Discover or create a Pipfile, then set up the context.
+    ///
+    /// Like [`discover`](Self::discover), but if no Pipfile is found, creates a
+    /// default one in the current directory (matching `pipenv install` behavior).
+    pub fn discover_or_init(printer: Printer, verbosity: u8, quiet: bool) -> Result<Self> {
+        let cwd = std::env::current_dir().context("failed to get current directory")?;
+        let pipfile_path = if let Ok(path) = find_pipfile(&cwd) {
+            path
+        } else {
+            let path = cwd.join("Pipfile");
+            let pipfile = Pipfile::default_new();
+            pipfile.write_to(&path)?;
+            printer.info(&format!("Created new Pipfile at {}", path.display()));
+            path
+        };
+        Self::from_pipfile_path(pipfile_path, printer, verbosity, quiet)
+    }
+
+    /// Build a `UvContext` from an already-located Pipfile path.
+    fn from_pipfile_path(
+        pipfile_path: PathBuf,
+        printer: Printer,
+        verbosity: u8,
+        quiet: bool,
+    ) -> Result<Self> {
         let project_dir = pipfile_path
             .parent()
             .context("Pipfile has no parent directory")?
@@ -100,151 +132,61 @@ impl UvContext {
         self.write_virtual_pyproject()
     }
 
-    /// Run a uv subcommand in the project directory.
-    ///
-    /// Returns the exit code from the uv process. Output is inherited
-    /// (streamed to the user's terminal) unless `quiet` is set.
-    pub fn run_uv(&self, args: &[&str]) -> Result<UvResult> {
-        let uv = find_uv()?;
-
-        self.printer
-            .debug(&format!("Running: uv {}", args.join(" ")));
-
-        let mut cmd = Command::new(&uv);
-        cmd.args(args);
-        cmd.current_dir(&self.project_dir);
-
-        // Pass through verbosity
+    /// Map ripenv's verbosity/quiet settings to uv's `Printer` enum.
+    pub fn uv_printer(&self) -> uv::printer::Printer {
         if self.quiet {
-            cmd.arg("--quiet");
-        }
-        for _ in 0..self.verbosity {
-            cmd.arg("--verbose");
-        }
-
-        // Inherit stdio so user sees uv's output directly
-        cmd.stdin(std::process::Stdio::inherit());
-        cmd.stdout(std::process::Stdio::inherit());
-        cmd.stderr(std::process::Stdio::inherit());
-
-        let status = cmd
-            .status()
-            .with_context(|| format!("failed to run uv at '{}'", uv.display()))?;
-
-        Ok(UvResult {
-            exit_code: exit_code_as_u8(status.code()),
-        })
-    }
-
-    /// Run a uv subcommand and capture its output (for programmatic use).
-    pub fn run_uv_captured(&self, args: &[&str]) -> Result<CapturedUvResult> {
-        let uv = find_uv()?;
-
-        self.printer
-            .debug(&format!("Running (captured): uv {}", args.join(" ")));
-
-        let mut cmd = Command::new(&uv);
-        cmd.args(args);
-        cmd.current_dir(&self.project_dir);
-
-        if self.quiet {
-            cmd.arg("--quiet");
-        }
-        for _ in 0..self.verbosity {
-            cmd.arg("--verbose");
-        }
-
-        let output = cmd
-            .output()
-            .with_context(|| format!("failed to run uv at '{}'", uv.display()))?;
-
-        Ok(CapturedUvResult {
-            exit_code: exit_code_as_u8(output.status.code()),
-            stdout: String::from_utf8_lossy(&output.stdout).to_string(),
-            stderr: String::from_utf8_lossy(&output.stderr).to_string(),
-        })
-    }
-}
-
-/// Result from a uv subprocess with inherited stdio.
-pub struct UvResult {
-    /// The exit code from the uv process.
-    pub exit_code: u8,
-}
-
-impl UvResult {
-    /// Whether the command succeeded (exit code 0).
-    pub fn success(&self) -> bool {
-        self.exit_code == 0
-    }
-}
-
-/// Result from a uv subprocess with captured output.
-pub struct CapturedUvResult {
-    /// The exit code from the uv process.
-    pub exit_code: u8,
-    /// Captured stdout.
-    pub stdout: String,
-    /// Captured stderr.
-    pub stderr: String,
-}
-
-impl CapturedUvResult {
-    /// Whether the command succeeded (exit code 0).
-    pub fn success(&self) -> bool {
-        self.exit_code == 0
-    }
-}
-
-/// Convert an optional process exit code to a `u8`.
-///
-/// Maps `None` (signal-killed) to 1 and clamps the `i32` to the `u8` range.
-fn exit_code_as_u8(code: Option<i32>) -> u8 {
-    match code {
-        Some(c) => u8::try_from(c).unwrap_or(if c < 0 { 1 } else { 255 }),
-        None => 1, // killed by signal
-    }
-}
-
-/// Find the `uv` binary.
-///
-/// Search order:
-/// 1. Same directory as the ripenv binary (co-located install)
-/// 2. System PATH
-fn find_uv() -> Result<PathBuf> {
-    // Try co-located first (e.g., both in target/debug/)
-    if let Ok(current_exe) = std::env::current_exe() {
-        if let Some(dir) = current_exe.parent() {
-            let uv_path = dir.join("uv");
-            if uv_path.is_file() {
-                return Ok(uv_path);
-            }
-            // Windows
-            let uv_exe = dir.join("uv.exe");
-            if uv_exe.is_file() {
-                return Ok(uv_exe);
-            }
+            uv::printer::Printer::Quiet
+        } else if self.verbosity >= 1 {
+            uv::printer::Printer::Verbose
+        } else {
+            uv::printer::Printer::Default
         }
     }
 
-    // Fall back to PATH
-    which_uv_on_path()
-}
-
-/// Search for `uv` on the system PATH.
-fn which_uv_on_path() -> Result<PathBuf> {
-    let path_var = std::env::var_os("PATH").unwrap_or_default();
-    for dir in std::env::split_paths(&path_var) {
-        let candidate = dir.join("uv");
-        if candidate.is_file() {
-            return Ok(candidate);
-        }
-        let candidate_exe = dir.join("uv.exe");
-        if candidate_exe.is_file() {
-            return Ok(candidate_exe);
-        }
+    /// Create a uv `Cache` with default settings.
+    pub fn cache(&self) -> Result<Cache> {
+        Cache::from_settings(false, None).context("failed to initialize uv cache")
     }
-    bail!("Could not find 'uv' binary. Is uv installed?")
+
+    /// Create a default `BaseClientBuilder`.
+    pub fn client_builder(&self) -> BaseClientBuilder<'_> {
+        BaseClientBuilder::default()
+    }
+
+    /// Create default `ResolverInstallerSettings`.
+    pub fn resolver_installer_settings(&self) -> uv::settings::ResolverInstallerSettings {
+        uv::settings::ResolverInstallerSettings::default()
+    }
+
+    /// Create default `ResolverSettings`.
+    pub fn resolver_settings(&self) -> uv::settings::ResolverSettings {
+        uv::settings::ResolverSettings::default()
+    }
+
+    /// Return the default `PythonInstallMirrors`.
+    pub fn install_mirrors(&self) -> PythonInstallMirrors {
+        PythonInstallMirrors::default()
+    }
+
+    /// Return the default `PythonPreference`.
+    pub fn python_preference(&self) -> PythonPreference {
+        PythonPreference::default()
+    }
+
+    /// Return the default `PythonDownloads`.
+    pub fn python_downloads(&self) -> PythonDownloads {
+        PythonDownloads::default()
+    }
+
+    /// Return the default `Concurrency`.
+    pub fn concurrency(&self) -> Concurrency {
+        Concurrency::default()
+    }
+
+    /// Return the default `Preview`.
+    pub fn preview(&self) -> Preview {
+        Preview::default()
+    }
 }
 
 /// Check if a pyproject.toml exists and was NOT generated by ripenv.

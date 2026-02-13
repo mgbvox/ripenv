@@ -44,6 +44,25 @@ impl Pipfile {
         let pipfile: Self = toml::from_str(&content)?;
         Ok(pipfile)
     }
+
+    /// Create a new default Pipfile with PyPI as the source.
+    ///
+    /// Mirrors `pipenv`'s `create_pipfile()`: includes the default PyPI source
+    /// and empty `[packages]` / `[dev-packages]` sections.
+    pub fn default_new() -> Self {
+        Self {
+            source: vec![PipfileSource {
+                name: "pypi".to_owned(),
+                url: "https://pypi.org/simple".to_owned(),
+                verify_ssl: true,
+            }],
+            packages: BTreeMap::new(),
+            dev_packages: BTreeMap::new(),
+            requires: None,
+            scripts: BTreeMap::new(),
+            pipenv: None,
+        }
+    }
 }
 
 /// A `[[source]]` entry in the Pipfile.

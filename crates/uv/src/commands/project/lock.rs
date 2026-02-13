@@ -78,7 +78,7 @@ impl LockResult {
 }
 
 /// Resolve the project requirements into a lockfile.
-pub(crate) async fn lock(
+pub async fn lock(
     project_dir: &Path,
     lock_check: LockCheck,
     frozen: Option<FrozenSource>,

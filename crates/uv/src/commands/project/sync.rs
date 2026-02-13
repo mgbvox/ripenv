@@ -56,7 +56,7 @@ use crate::settings::{
 };
 
 /// Sync the project environment.
-pub(crate) async fn sync(
+pub async fn sync(
     project_dir: &Path,
     lock_check: LockCheck,
     frozen: Option<FrozenSource>,

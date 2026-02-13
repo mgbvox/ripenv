@@ -60,12 +60,12 @@ use crate::settings::{
 };
 
 pub(crate) mod child;
-pub(crate) mod commands;
+pub mod commands;
 #[cfg(not(feature = "self-update"))]
 mod install_source;
 pub(crate) mod logging;
-pub(crate) mod printer;
-pub(crate) mod settings;
+pub mod printer;
+pub mod settings;
 #[cfg(windows)]
 mod windows_exception;
 

@@ -1,6 +1,15 @@
 //! `ripenv update` — update packages (re-lock then sync).
 
+use std::str::FromStr;
+
 use anyhow::Result;
+use rustc_hash::FxHashMap;
+use uv_cache::Refresh;
+use uv_cli::SyncFormat;
+use uv_configuration::{
+    DependencyGroups, DryRun, EditableMode, ExtrasSpecification, InstallOptions, Upgrade,
+};
+use uv_normalize::PackageName;
 
 use crate::cli::UpdateArgs;
 use crate::commands::ExitStatus;
@@ -8,7 +17,7 @@ use crate::commands::uv_runner::UvContext;
 use crate::printer::Printer;
 
 /// Execute `ripenv update`.
-pub fn execute(
+pub async fn execute(
     args: &UpdateArgs,
     printer: Printer,
     verbosity: u8,
@@ -16,38 +25,89 @@ pub fn execute(
 ) -> Result<ExitStatus> {
     let ctx = UvContext::discover(printer, verbosity, quiet)?;
 
-    // Build lock args
-    let mut lock_args = vec!["lock", "--upgrade"];
+    // Build lock settings with upgrade
+    let mut settings = ctx.resolver_settings();
 
-    // If specific packages, only upgrade those
-    let upgrade_packages: Vec<String> = args
-        .packages
-        .iter()
-        .map(|p| format!("--upgrade-package={p}"))
-        .collect();
-    if !args.packages.is_empty() {
-        // Remove the blanket --upgrade, use per-package instead
-        lock_args.pop();
-        for pkg in &upgrade_packages {
-            lock_args.push(pkg);
+    if args.packages.is_empty() {
+        settings.upgrade = Upgrade::All;
+    } else {
+        let mut packages = FxHashMap::default();
+        for p in &args.packages {
+            let name = PackageName::from_str(p)?;
+            packages.insert(name, vec![]);
         }
+        settings.upgrade = Upgrade::Packages(packages);
     }
 
-    if args.dry_run {
-        lock_args.push("--dry-run");
-    }
+    let dry_run = if args.dry_run {
+        DryRun::Enabled
+    } else {
+        DryRun::default()
+    };
+
+    let cache = ctx.cache()?;
 
     // Re-lock
-    let result = ctx.run_uv(&lock_args)?;
-    if !result.success() {
-        return Ok(ExitStatus::External(result.exit_code));
+    let result = uv::commands::project::lock::lock(
+        &ctx.project_dir,
+        uv::settings::LockCheck::Disabled,
+        None, // frozen
+        dry_run,
+        Refresh::from_args(None, vec![]),
+        None, // python
+        ctx.install_mirrors(),
+        settings,
+        ctx.client_builder(),
+        None, // script
+        ctx.python_preference(),
+        ctx.python_downloads(),
+        ctx.concurrency(),
+        false, // no_config
+        &cache,
+        ctx.uv_printer(),
+        ctx.preview(),
+    )
+    .await?;
+
+    if !matches!(result, ExitStatus::Success) {
+        return Ok(result);
     }
 
     // Sync (unless --lock-only or --dry-run)
     if !args.lock_only && !args.dry_run {
-        let result = ctx.run_uv(&["sync"])?;
-        if !result.success() {
-            return Ok(ExitStatus::External(result.exit_code));
+        let result = Box::pin(uv::commands::project::sync::sync(
+            &ctx.project_dir,
+            uv::settings::LockCheck::Disabled,
+            None, // frozen
+            DryRun::default(),
+            None,   // active
+            false,  // all_packages
+            vec![], // package
+            ExtrasSpecification::default(),
+            DependencyGroups::default(),
+            Some(EditableMode::default()),
+            InstallOptions::default(),
+            uv::commands::pip::operations::Modifications::Exact,
+            None, // python
+            None, // python_platform
+            ctx.install_mirrors(),
+            ctx.python_preference(),
+            ctx.python_downloads(),
+            ctx.resolver_installer_settings(),
+            ctx.client_builder(),
+            None,  // script
+            false, // installer_metadata
+            ctx.concurrency(),
+            false, // no_config
+            &cache,
+            ctx.uv_printer(),
+            ctx.preview(),
+            SyncFormat::default(),
+        ))
+        .await?;
+
+        if !matches!(result, ExitStatus::Success) {
+            return Ok(result);
         }
     }
 
