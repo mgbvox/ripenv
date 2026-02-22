@@ -62,6 +62,7 @@ pub async fn execute(
     .await?;
 
     if matches!(result, ExitStatus::Success) {
+        ctx.generate_pipfile_lock()?;
         ctx.printer.info("Locking successful.");
     }
 

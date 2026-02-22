@@ -8,10 +8,10 @@ use std::collections::BTreeMap;
 use std::path::Path;
 
 use anyhow::Result;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 /// Top-level Pipfile structure.
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct Pipfile {
     /// Package index sources.
     #[serde(default)]
@@ -66,7 +66,7 @@ impl Pipfile {
 }
 
 /// A `[[source]]` entry in the Pipfile.
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct PipfileSource {
     /// Source name (e.g., `"pypi"`).
     pub name: String,
@@ -84,7 +84,7 @@ pub struct PipfileSource {
 /// Pipfile packages can be either a simple version string like `"*"` or
 /// `">=1.0"`, or a table with extended fields like
 /// `{version = ">=1.0", extras = ["security"], markers = "..."}`.
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 #[serde(untagged)]
 pub enum PipfilePackage {
     /// Simple version string: `requests = "*"` or `requests = ">=1.0"`.
@@ -95,7 +95,7 @@ pub enum PipfilePackage {
 }
 
 /// Extended package specification fields.
-#[derive(Debug, Default, Deserialize)]
+#[derive(Debug, Default, Deserialize, Serialize)]
 pub struct PipfilePackageDetail {
     /// Version specifier (e.g., `">=1.0"`, `"*"`).
     pub version: Option<String>,
@@ -129,7 +129,7 @@ pub struct PipfilePackageDetail {
 }
 
 /// The `[requires]` section of a Pipfile.
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct PipfileRequires {
     /// Python version (e.g., `"3.12"`).
     pub python_version: Option<String>,
@@ -139,7 +139,7 @@ pub struct PipfileRequires {
 }
 
 /// The `[pipenv]` section for pipenv-specific settings.
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct PipfileSettings {
     /// Whether to allow pre-release versions.
     #[serde(default)]

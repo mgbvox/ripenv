@@ -5,7 +5,7 @@
 //! - With packages: add to Pipfile, then lock + sync.
 
 use anyhow::{Result, bail};
-use uv_cache::Refresh;
+use uv_cache::{Cache, Refresh};
 use uv_cli::SyncFormat;
 use uv_configuration::{
     DependencyGroups, DryRun, EditableMode, ExtrasSpecification, InstallOptions,
@@ -32,6 +32,35 @@ pub async fn execute(
     Box::pin(install_packages(args, printer, verbosity, quiet)).await
 }
 
+async fn do_lock(
+    ctx: &UvContext,
+    cache: &Cache,
+    lock_check: uv::settings::LockCheck,
+) -> Result<ExitStatus> {
+    let lock_exit_status = uv::commands::project::lock::lock(
+        &ctx.project_dir,
+        lock_check,
+        None, // frozen
+        DryRun::default(),
+        Refresh::from_args(None, vec![]),
+        None, // python
+        ctx.install_mirrors(),
+        ctx.resolver_settings(),
+        ctx.client_builder(),
+        None, // script
+        ctx.python_preference(),
+        ctx.python_downloads(),
+        ctx.concurrency(),
+        false, // no_config
+        cache,
+        ctx.uv_printer(),
+        ctx.preview(),
+    )
+    .await?;
+
+    Ok(lock_exit_status)
+}
+
 /// `ripenv install` with no packages — sync from the lockfile.
 async fn install_from_lockfile(
     args: &InstallArgs,
@@ -44,26 +73,13 @@ async fn install_from_lockfile(
     // If --deploy, verify the lockfile is up to date first
     if args.deploy {
         let cache = ctx.cache()?;
-        let check_result = uv::commands::project::lock::lock(
-            &ctx.project_dir,
-            uv::settings::LockCheck::Enabled(uv::settings::LockCheckSource::Check),
-            None, // frozen
-            DryRun::default(),
-            Refresh::from_args(None, vec![]),
-            None, // python
-            ctx.install_mirrors(),
-            ctx.resolver_settings(),
-            ctx.client_builder(),
-            None, // script
-            ctx.python_preference(),
-            ctx.python_downloads(),
-            ctx.concurrency(),
-            false, // no_config
+        let check_result = do_lock(
+            &ctx,
             &cache,
-            ctx.uv_printer(),
-            ctx.preview(),
+            uv::settings::LockCheck::Enabled(uv::settings::LockCheckSource::Check),
         )
         .await?;
+
         if !matches!(check_result, ExitStatus::Success) {
             bail!("Lockfile is out of date (--deploy mode). Run `ripenv lock` first.");
         }
@@ -120,6 +136,7 @@ async fn install_from_lockfile(
     .await?;
 
     if matches!(result, ExitStatus::Success) {
+        ctx.generate_pipfile_lock()?;
         ctx.printer.info("Install complete.");
     }
 
@@ -244,6 +261,7 @@ async fn install_packages(
     .await?;
 
     if matches!(result, ExitStatus::Success) {
+        ctx.generate_pipfile_lock()?;
         ctx.printer.info("Install complete.");
     }
 

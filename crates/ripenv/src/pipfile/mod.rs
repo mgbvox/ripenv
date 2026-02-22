@@ -16,6 +16,7 @@
 
 pub mod bridge;
 pub mod discovery;
+pub mod lockfile;
 pub mod model;
 mod writer;
 

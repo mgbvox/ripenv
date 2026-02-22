@@ -73,6 +73,8 @@ pub async fn execute(
         return Ok(result);
     }
 
+    ctx.generate_pipfile_lock()?;
+
     // Sync (unless --lock-only or --dry-run)
     if !args.lock_only && !args.dry_run {
         let result = Box::pin(uv::commands::project::sync::sync(

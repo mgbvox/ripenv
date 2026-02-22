@@ -3411,7 +3411,7 @@ impl Package {
     }
 
     /// Returns all the hashes associated with this [`Package`].
-    fn hashes(&self) -> HashDigests {
+    pub fn hashes(&self) -> HashDigests {
         let mut hashes = Vec::with_capacity(
             usize::from(self.sdist.as_ref().and_then(|sdist| sdist.hash()).is_some())
                 + self
@@ -3451,6 +3451,11 @@ impl Package {
     /// Returns `true` if the package is a dynamic source tree.
     fn is_dynamic(&self) -> bool {
         self.id.version.is_none()
+    }
+
+    /// Returns `true` if this is a virtual source (the root project placeholder).
+    pub fn is_virtual(&self) -> bool {
+        matches!(&self.id.source, Source::Virtual(_))
     }
 
     /// Returns the extras the package provides, if any.

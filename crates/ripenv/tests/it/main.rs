@@ -7,6 +7,7 @@ pub(crate) mod common;
 
 mod help;
 mod install;
+mod lockfile;
 mod parity;
 mod pipfile_parse;
 mod verbosity;
