@@ -1,8 +1,5 @@
 #![allow(clippy::disallowed_types)]
 
-#[cfg(feature = "test-git")]
-use crate::common::{READ_ONLY_GITHUB_SSH_DEPLOY_KEY, READ_ONLY_GITHUB_TOKEN, decode_token};
-use crate::common::{TestContext, apply_filters, copy_dir_ignore, uv_snapshot};
 use anyhow::{Ok, Result};
 use assert_cmd::assert::OutputAssertExt;
 use assert_fs::prelude::*;
@@ -14,10 +11,13 @@ use std::process::Stdio;
 #[cfg(feature = "test-git")]
 use uv_fs::Simplified;
 use uv_static::EnvVars;
+#[cfg(feature = "test-git")]
+use uv_test::{READ_ONLY_GITHUB_SSH_DEPLOY_KEY, READ_ONLY_GITHUB_TOKEN, decode_token};
+use uv_test::{apply_filters, copy_dir_ignore, uv_snapshot};
 
 #[test]
 fn requirements_txt_dependency() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -29,8 +29,8 @@ fn requirements_txt_dependency() -> Result<()> {
         dependencies = ["anyio==3.7.0"]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -65,7 +65,7 @@ fn requirements_txt_dependency() -> Result<()> {
 
 #[test]
 fn requirements_txt_export_no_header() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -77,8 +77,8 @@ fn requirements_txt_export_no_header() -> Result<()> {
         dependencies = ["anyio==3.7.0"]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -111,7 +111,7 @@ fn requirements_txt_export_no_header() -> Result<()> {
 
 #[test]
 fn requirements_txt_dependency_extra() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -123,8 +123,8 @@ fn requirements_txt_dependency_extra() -> Result<()> {
         dependencies = ["flask[dotenv]"]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -194,7 +194,7 @@ fn requirements_txt_dependency_extra() -> Result<()> {
 
 #[test]
 fn requirements_txt_project_extra() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -210,8 +210,8 @@ fn requirements_txt_project_extra() -> Result<()> {
         pytest = ["iniconfig"]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -346,7 +346,7 @@ fn requirements_txt_project_extra() -> Result<()> {
 
 #[test]
 fn requirements_txt_prune() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -411,7 +411,7 @@ fn requirements_txt_prune() -> Result<()> {
 
 #[test]
 fn requirements_txt_dependency_marker() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -423,8 +423,8 @@ fn requirements_txt_dependency_marker() -> Result<()> {
         dependencies = ["anyio ; sys_platform == 'darwin'", "iniconfig"]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -463,7 +463,7 @@ fn requirements_txt_dependency_marker() -> Result<()> {
 
 #[test]
 fn requirements_txt_dependency_multiple_markers() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -478,8 +478,8 @@ fn requirements_txt_dependency_multiple_markers() -> Result<()> {
         ]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -546,7 +546,7 @@ fn requirements_txt_dependency_multiple_markers() -> Result<()> {
 
 #[test]
 fn requirements_txt_dependency_conflicting_markers() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -561,8 +561,8 @@ fn requirements_txt_dependency_conflicting_markers() -> Result<()> {
         ]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -790,7 +790,7 @@ fn requirements_txt_dependency_conflicting_markers() -> Result<()> {
 
 #[test]
 fn requirements_txt_non_root() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -808,8 +808,8 @@ fn requirements_txt_non_root() -> Result<()> {
         child = { workspace = true }
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -823,8 +823,8 @@ fn requirements_txt_non_root() -> Result<()> {
         dependencies = ["iniconfig>=2"]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -851,7 +851,7 @@ fn requirements_txt_non_root() -> Result<()> {
 
 #[test]
 fn allrequirements_txt_() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -869,8 +869,8 @@ fn allrequirements_txt_() -> Result<()> {
         child = { workspace = true }
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -884,8 +884,8 @@ fn allrequirements_txt_() -> Result<()> {
         dependencies = ["iniconfig>=2"]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -926,7 +926,7 @@ fn allrequirements_txt_() -> Result<()> {
 
 #[test]
 fn requirements_txt_frozen() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -944,8 +944,8 @@ fn requirements_txt_frozen() -> Result<()> {
         child = { workspace = true }
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -959,8 +959,8 @@ fn requirements_txt_frozen() -> Result<()> {
         dependencies = ["iniconfig>=2"]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -1014,7 +1014,7 @@ fn requirements_txt_frozen() -> Result<()> {
 
 #[test]
 fn requirements_txt_create_missing_dir() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -1026,8 +1026,8 @@ fn requirements_txt_create_missing_dir() -> Result<()> {
         dependencies = ["anyio==3.7.0"]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -1092,7 +1092,7 @@ fn requirements_txt_create_missing_dir() -> Result<()> {
 
 #[test]
 fn requirements_txt_non_project() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -1148,7 +1148,7 @@ fn requirements_txt_non_project() -> Result<()> {
 #[test]
 fn virtual_empty() -> Result<()> {
     // testing how `uv export` reacts to a pyproject with no `[project]` and nothing useful to it
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(indoc! {r#"
@@ -1175,7 +1175,7 @@ fn virtual_empty() -> Result<()> {
 fn virtual_dependency_group() -> Result<()> {
     // testing basic `uv export --group` functionality
     // when the pyproject.toml is fully virtual (no `[project]`)
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(indoc! {r#"
@@ -1244,7 +1244,7 @@ fn virtual_dependency_group() -> Result<()> {
 #[cfg(feature = "test-git")]
 #[test]
 fn requirements_txt_https_git_credentials() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
     let token = decode_token(READ_ONLY_GITHUB_TOKEN);
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
@@ -1309,7 +1309,7 @@ fn reduce_ssh_key_file_permissions(key_file: &Path) -> Result<()> {
 #[cfg(feature = "test-git")]
 #[test]
 fn requirements_txt_ssh_git_username() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -1395,17 +1395,19 @@ fn requirements_txt_ssh_git_username() -> Result<()> {
     Ok(())
 }
 
-#[test]
-fn requirements_txt_https_credentials() -> Result<()> {
-    let context = TestContext::new("3.12");
+#[tokio::test]
+async fn requirements_txt_https_credentials() -> Result<()> {
+    let context = uv_test::test_context!("3.12");
+    let proxy = crate::pypi_proxy::start().await;
 
+    let file_url = proxy.authenticated_url("public", "heron", "/basic-auth/files/packages/ef/a6/62565a6e1cf69e10f5727360368e451d4b7f58beeac6173dc9db836a5b46/iniconfig-2.0.0-py3-none-any.whl");
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(&formatdoc! {r#"
         [project]
         name = "project"
         version = "0.1.0"
         requires-python = ">=3.12"
-        dependencies = ["iniconfig @ https://public:heron@pypi-proxy.fly.dev/basic-auth/files/packages/ef/a6/62565a6e1cf69e10f5727360368e451d4b7f58beeac6173dc9db836a5b46/iniconfig-2.0.0-py3-none-any.whl"]
+        dependencies = ["iniconfig @ {file_url}"]
     "#})?;
 
     context.lock().assert().success();
@@ -1417,7 +1419,7 @@ fn requirements_txt_https_credentials() -> Result<()> {
     ----- stdout -----
     # This file was autogenerated by uv via the following command:
     #    uv export --cache-dir [CACHE_DIR]
-    iniconfig @ https://public:heron@pypi-proxy.fly.dev/basic-auth/files/packages/ef/a6/62565a6e1cf69e10f5727360368e451d4b7f58beeac6173dc9db836a5b46/iniconfig-2.0.0-py3-none-any.whl \
+    iniconfig @ http://public:heron@[LOCALHOST]/basic-auth/files/packages/ef/a6/62565a6e1cf69e10f5727360368e451d4b7f58beeac6173dc9db836a5b46/iniconfig-2.0.0-py3-none-any.whl \
         --hash=sha256:b6a85871a79d2e3b22d2d1b94ac2824226a63c6b741c88f7ae975f18b6778374
         # via project
 
@@ -1430,7 +1432,7 @@ fn requirements_txt_https_credentials() -> Result<()> {
 
 #[test]
 fn requirements_txt_non_project_marker() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -1485,7 +1487,7 @@ fn requirements_txt_non_project_marker() -> Result<()> {
 
 #[test]
 fn requirements_txt_non_project_workspace() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -1508,8 +1510,8 @@ fn requirements_txt_non_project_workspace() -> Result<()> {
         dependencies = ["iniconfig"]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -1563,7 +1565,7 @@ fn requirements_txt_non_project_workspace() -> Result<()> {
 
 #[test]
 fn requirements_txt_non_project_fork() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -1586,8 +1588,8 @@ fn requirements_txt_non_project_fork() -> Result<()> {
         dependencies = ["anyio==2.0.0 ; sys_platform == 'win32'", "anyio==3.0.0 ; sys_platform == 'linux'"]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -1789,7 +1791,7 @@ fn requirements_txt_non_project_fork() -> Result<()> {
 
 #[test]
 fn requirements_txt_relative_path() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let dependency = context.temp_dir.child("dependency");
     dependency.child("pyproject.toml").write_str(
@@ -1801,10 +1803,15 @@ fn requirements_txt_relative_path() -> Result<()> {
         dependencies = ["iniconfig>=2"]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
+    dependency
+        .child("src")
+        .child("dependency")
+        .child("__init__.py")
+        .touch()?;
 
     let project = context.temp_dir.child("project");
     project.child("pyproject.toml").write_str(
@@ -1819,10 +1826,15 @@ fn requirements_txt_relative_path() -> Result<()> {
         dependency = { path = "../dependency" }
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
+    project
+        .child("src")
+        .child("project")
+        .child("__init__.py")
+        .touch()?;
 
     context.lock().current_dir(&project).assert().success();
 
@@ -1877,7 +1889,7 @@ fn requirements_txt_relative_path() -> Result<()> {
 
 #[test]
 fn devrequirements_txt_() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -1892,8 +1904,8 @@ fn devrequirements_txt_() -> Result<()> {
         dev-dependencies = ["anyio"]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -1972,7 +1984,7 @@ fn devrequirements_txt_() -> Result<()> {
 
 #[test]
 fn requirements_txt_no_hashes() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -1984,8 +1996,8 @@ fn requirements_txt_no_hashes() -> Result<()> {
         dependencies = ["anyio==3.7.0"]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -2014,7 +2026,7 @@ fn requirements_txt_no_hashes() -> Result<()> {
 
 #[test]
 fn requirements_txt_output_file() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -2026,8 +2038,8 @@ fn requirements_txt_output_file() -> Result<()> {
         dependencies = ["anyio==3.7.0"]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -2081,7 +2093,7 @@ fn requirements_txt_output_file() -> Result<()> {
 
 #[test]
 fn requirements_txt_no_emit() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -2099,8 +2111,8 @@ fn requirements_txt_no_emit() -> Result<()> {
         child = { workspace = true }
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -2114,8 +2126,8 @@ fn requirements_txt_no_emit() -> Result<()> {
         dependencies = ["iniconfig>=2"]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -2233,8 +2245,8 @@ fn requirements_txt_no_emit() -> Result<()> {
         dependencies = ["anyio==3.7.0"]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -2265,9 +2277,59 @@ fn requirements_txt_no_emit() -> Result<()> {
     Ok(())
 }
 
+/// `--no-emit-workspace` should be respected when `--all-packages` is passed,
+/// even if the workspace has a single member (i.e., no additional packages).
+///
+/// See: <https://github.com/astral-sh/uv/issues/18070>
+#[test]
+fn requirements_txt_no_emit_workspace_all_packages() -> Result<()> {
+    let context = uv_test::test_context!("3.12");
+
+    let pyproject_toml = context.temp_dir.child("pyproject.toml");
+    pyproject_toml.write_str(
+        r#"
+        [project]
+        name = "project"
+        version = "0.1.0"
+        requires-python = ">=3.12"
+        dependencies = ["anyio==3.7.0"]
+
+        [build-system]
+        requires = ["uv_build>=0.8.22,<10000"]
+        build-backend = "uv_build"
+        "#,
+    )?;
+
+    // `--no-emit-workspace --all-packages` on a single-member workspace should not emit `-e .`.
+    uv_snapshot!(context.filters(), context.export().arg("--no-emit-workspace").arg("--all-packages"), @r"
+    success: true
+    exit_code: 0
+    ----- stdout -----
+    # This file was autogenerated by uv via the following command:
+    #    uv export --cache-dir [CACHE_DIR] --no-emit-workspace --all-packages
+    anyio==3.7.0 \
+        --hash=sha256:275d9973793619a5374e1c89a4f4ad3f4b0a5510a2b5b939444bee8f4c4d37ce \
+        --hash=sha256:eddca883c4175f14df8aedce21054bfca3adb70ffe76a9f607aef9d7fa2ea7f0
+        # via project
+    idna==3.6 \
+        --hash=sha256:9ecdbbd083b06798ae1e86adcbfe8ab1479cf864e4ee30fe4e46a003d12491ca \
+        --hash=sha256:c05567e9c24a6b9faaa835c4821bad0590fbb9d5779e7caa6e1cc4978e7eb24f
+        # via anyio
+    sniffio==1.3.1 \
+        --hash=sha256:2f6da418d1f1e0fddd844478f41680e794e6051915791a034ff65e5f100525a2 \
+        --hash=sha256:f4324edc670a0f49750a81b895f35c3adb843cca46f0530f79fc1babb23789dc
+        # via anyio
+
+    ----- stderr -----
+    Resolved 4 packages in [TIME]
+    ");
+
+    Ok(())
+}
+
 #[test]
 fn requirements_txt_only_emit() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -2285,8 +2347,8 @@ fn requirements_txt_only_emit() -> Result<()> {
         child = { workspace = true }
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -2300,8 +2362,8 @@ fn requirements_txt_only_emit() -> Result<()> {
         dependencies = ["iniconfig>=2"]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -2353,7 +2415,7 @@ fn requirements_txt_only_emit() -> Result<()> {
 
 #[test]
 fn requirements_txt_no_editable() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -2371,8 +2433,8 @@ fn requirements_txt_no_editable() -> Result<()> {
         child = { workspace = true }
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -2386,8 +2448,8 @@ fn requirements_txt_no_editable() -> Result<()> {
         dependencies = ["iniconfig>=2"]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -2428,7 +2490,7 @@ fn requirements_txt_no_editable() -> Result<()> {
 
 #[test]
 fn requirements_txt_export_group() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -2605,7 +2667,7 @@ fn requirements_txt_export_group() -> Result<()> {
 
 #[test]
 fn requirements_txt_script() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let script = context.temp_dir.child("script.py");
     script.write_str(indoc! {r#"
@@ -2868,7 +2930,7 @@ fn requirements_txt_script() -> Result<()> {
 
 #[test]
 fn requirements_txt_conflicts() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -2892,8 +2954,8 @@ fn requirements_txt_conflicts() -> Result<()> {
         extra2 = ["sortedcontainers==2.4.0"]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -2970,7 +3032,7 @@ fn requirements_txt_conflicts() -> Result<()> {
 
 #[test]
 fn requirements_txt_simple_conflict_markers() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -3055,7 +3117,7 @@ fn requirements_txt_simple_conflict_markers() -> Result<()> {
 
 #[test]
 fn requirements_txt_complex_conflict_markers() -> Result<()> {
-    let context = TestContext::new("3.12").with_exclude_newer("2025-01-30T00:00:00Z");
+    let context = uv_test::test_context!("3.12").with_exclude_newer("2025-01-30T00:00:00Z");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -3430,7 +3492,7 @@ fn requirements_txt_complex_conflict_markers() -> Result<()> {
 /// Export requirements in the presence of a cycle.
 #[test]
 fn requirements_txt_cyclic_dependencies() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -3516,7 +3578,7 @@ fn requirements_txt_cyclic_dependencies() -> Result<()> {
 /// Export requirements in the presence of a cycle, with conflicts enabled.
 #[test]
 fn requirements_txt_cyclic_dependencies_conflict() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -3615,7 +3677,7 @@ fn requirements_txt_cyclic_dependencies_conflict() -> Result<()> {
 
 #[test]
 fn pep_751_dependency() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -3627,8 +3689,8 @@ fn pep_751_dependency() -> Result<()> {
         dependencies = ["anyio==3.7.0"]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -3678,7 +3740,7 @@ fn pep_751_dependency() -> Result<()> {
 
 #[test]
 fn pep_751_export_no_header() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -3690,8 +3752,8 @@ fn pep_751_export_no_header() -> Result<()> {
         dependencies = ["anyio==3.7.0"]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -3739,7 +3801,7 @@ fn pep_751_export_no_header() -> Result<()> {
 
 #[test]
 fn pep_751_export_no_editable() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -3751,8 +3813,8 @@ fn pep_751_export_no_editable() -> Result<()> {
         dependencies = ["anyio==3.7.0"]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -3802,7 +3864,7 @@ fn pep_751_export_no_editable() -> Result<()> {
 
 #[test]
 fn pep_751_dependency_extra() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -3814,8 +3876,8 @@ fn pep_751_dependency_extra() -> Result<()> {
         dependencies = ["flask[dotenv]"]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -3919,7 +3981,7 @@ fn pep_751_dependency_extra() -> Result<()> {
 
 #[test]
 fn pep_751_project_extra() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -3935,8 +3997,8 @@ fn pep_751_project_extra() -> Result<()> {
         pytest = ["iniconfig"]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -4150,7 +4212,7 @@ fn pep_751_project_extra() -> Result<()> {
 #[test]
 #[cfg(feature = "test-git")]
 fn pep_751_git_dependency() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -4192,7 +4254,7 @@ fn pep_751_git_dependency() -> Result<()> {
 
 #[test]
 fn pep_751_wheel_url() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -4245,7 +4307,7 @@ fn pep_751_wheel_url() -> Result<()> {
 
 #[test]
 fn pep_751_sdist_url() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -4298,7 +4360,7 @@ fn pep_751_sdist_url() -> Result<()> {
 
 #[test]
 fn pep_751_sdist_url_subdirectory() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -4361,7 +4423,7 @@ fn pep_751_sdist_url_subdirectory() -> Result<()> {
 
 #[test]
 fn pep_751_infer_output_format() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -4373,8 +4435,8 @@ fn pep_751_infer_output_format() -> Result<()> {
         dependencies = ["anyio==3.7.0"]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -4497,7 +4559,7 @@ fn pep_751_infer_output_format() -> Result<()> {
 
 #[test]
 fn pep_751_filename() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -4509,8 +4571,8 @@ fn pep_751_filename() -> Result<()> {
         dependencies = ["anyio==3.7.0"]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -4532,7 +4594,7 @@ fn pep_751_filename() -> Result<()> {
 #[cfg(feature = "test-git")]
 #[test]
 fn pep_751_https_git_credentials() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
     let token = decode_token(READ_ONLY_GITHUB_TOKEN);
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
@@ -4569,17 +4631,19 @@ fn pep_751_https_git_credentials() -> Result<()> {
     Ok(())
 }
 
-#[test]
-fn pep_751_https_credentials() -> Result<()> {
-    let context = TestContext::new("3.12");
+#[tokio::test]
+async fn pep_751_https_credentials() -> Result<()> {
+    let context = uv_test::test_context!("3.12");
+    let proxy = crate::pypi_proxy::start().await;
 
+    let file_url = proxy.authenticated_url("public", "heron", "/basic-auth/files/packages/ef/a6/62565a6e1cf69e10f5727360368e451d4b7f58beeac6173dc9db836a5b46/iniconfig-2.0.0-py3-none-any.whl");
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(&formatdoc! {r#"
         [project]
         name = "project"
         version = "0.1.0"
         requires-python = ">=3.12"
-        dependencies = ["iniconfig @ https://public:heron@pypi-proxy.fly.dev/basic-auth/files/packages/ef/a6/62565a6e1cf69e10f5727360368e451d4b7f58beeac6173dc9db836a5b46/iniconfig-2.0.0-py3-none-any.whl"]
+        dependencies = ["iniconfig @ {file_url}"]
     "#})?;
 
     context.lock().assert().success();
@@ -4598,7 +4662,7 @@ fn pep_751_https_credentials() -> Result<()> {
     [[packages]]
     name = "iniconfig"
     version = "2.0.0"
-    archive = { url = "https://public:heron@pypi-proxy.fly.dev/basic-auth/files/packages/ef/a6/62565a6e1cf69e10f5727360368e451d4b7f58beeac6173dc9db836a5b46/iniconfig-2.0.0-py3-none-any.whl", hashes = { sha256 = "b6a85871a79d2e3b22d2d1b94ac2824226a63c6b741c88f7ae975f18b6778374" } }
+    archive = { url = "http://public:heron@[LOCALHOST]/basic-auth/files/packages/ef/a6/62565a6e1cf69e10f5727360368e451d4b7f58beeac6173dc9db836a5b46/iniconfig-2.0.0-py3-none-any.whl", hashes = { sha256 = "b6a85871a79d2e3b22d2d1b94ac2824226a63c6b741c88f7ae975f18b6778374" } }
 
     ----- stderr -----
     Resolved 2 packages in [TIME]
@@ -4612,7 +4676,7 @@ fn pep_751_https_credentials() -> Result<()> {
 /// <https://github.com/astral-sh/uv/issues/15103>
 #[test]
 fn no_editable_env_var() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     context
         .init()
@@ -4640,7 +4704,7 @@ fn no_editable_env_var() -> Result<()> {
 
 #[test]
 fn export_only_group_and_extra_conflict() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -4693,7 +4757,7 @@ fn export_only_group_and_extra_conflict() -> Result<()> {
 /// The members in the workspace (`foo`) and in the lockfile (`bar`) mismatch.
 #[test]
 fn export_lock_workspace_mismatch_with_frozen() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -4735,7 +4799,7 @@ fn export_lock_workspace_mismatch_with_frozen() -> Result<()> {
 /// Export multiple packages within a workspace.
 #[test]
 fn multiple_packages() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -4878,7 +4942,7 @@ fn multiple_packages() -> Result<()> {
 
 #[test]
 fn cyclonedx_export_basic() -> Result<()> {
-    let context = TestContext::new("3.12").with_cyclonedx_filters();
+    let context = uv_test::test_context!("3.12").with_cyclonedx_filters();
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
         r#"
@@ -4889,8 +4953,8 @@ fn cyclonedx_export_basic() -> Result<()> {
         dependencies = ["urllib3==2.2.0"]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -4959,7 +5023,7 @@ fn cyclonedx_export_basic() -> Result<()> {
 
 #[test]
 fn cyclonedx_export_direct_url() -> Result<()> {
-    let context = TestContext::new("3.12").with_cyclonedx_filters();
+    let context = uv_test::test_context!("3.12").with_cyclonedx_filters();
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -4971,8 +5035,8 @@ fn cyclonedx_export_direct_url() -> Result<()> {
         dependencies = ["idna @ https://files.pythonhosted.org/packages/c2/e7/a82b05cf63a603df6e68d59ae6a68bf5064484a0718ea5033660af4b54a9/idna-3.6-py3-none-any.whl"]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -5042,7 +5106,7 @@ fn cyclonedx_export_direct_url() -> Result<()> {
 #[cfg(feature = "test-git")]
 #[test]
 fn cyclonedx_export_git_dependency() -> Result<()> {
-    let context = TestContext::new("3.12").with_cyclonedx_filters();
+    let context = uv_test::test_context!("3.12").with_cyclonedx_filters();
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -5054,8 +5118,8 @@ fn cyclonedx_export_git_dependency() -> Result<()> {
         dependencies = ["urllib3 @ git+https://github.com/urllib3/urllib3.git@2.2.0"]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -5124,7 +5188,7 @@ fn cyclonedx_export_git_dependency() -> Result<()> {
 
 #[test]
 fn cyclonedx_export_no_dependencies() -> Result<()> {
-    let context = TestContext::new("3.12").with_cyclonedx_filters();
+    let context = uv_test::test_context!("3.12").with_cyclonedx_filters();
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -5136,8 +5200,8 @@ fn cyclonedx_export_no_dependencies() -> Result<()> {
         dependencies = []
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -5193,7 +5257,7 @@ fn cyclonedx_export_no_dependencies() -> Result<()> {
 #[cfg(feature = "test-git")]
 #[test]
 fn cyclonedx_export_mixed_source_types() -> Result<()> {
-    let context = TestContext::new("3.12").with_cyclonedx_filters();
+    let context = uv_test::test_context!("3.12").with_cyclonedx_filters();
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -5209,8 +5273,8 @@ fn cyclonedx_export_mixed_source_types() -> Result<()> {
         ]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -5303,7 +5367,7 @@ fn cyclonedx_export_mixed_source_types() -> Result<()> {
 
 #[test]
 fn cyclonedx_export_project_extra() -> Result<()> {
-    let context = TestContext::new("3.12").with_cyclonedx_filters();
+    let context = uv_test::test_context!("3.12").with_cyclonedx_filters();
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -5319,8 +5383,8 @@ fn cyclonedx_export_project_extra() -> Result<()> {
         pytest = ["iniconfig==2.0.0"]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -5389,7 +5453,7 @@ fn cyclonedx_export_project_extra() -> Result<()> {
 
 #[test]
 fn cyclonedx_export_project_extra_with_optional_flag() -> Result<()> {
-    let context = TestContext::new("3.12").with_cyclonedx_filters();
+    let context = uv_test::test_context!("3.12").with_cyclonedx_filters();
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -5405,8 +5469,8 @@ fn cyclonedx_export_project_extra_with_optional_flag() -> Result<()> {
         pytest = ["iniconfig==2.0.0"]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -5499,7 +5563,7 @@ fn cyclonedx_export_project_extra_with_optional_flag() -> Result<()> {
 
 #[test]
 fn cyclonedx_export_with_workspace_member() -> Result<()> {
-    let context = TestContext::new("3.12").with_cyclonedx_filters();
+    let context = uv_test::test_context!("3.12").with_cyclonedx_filters();
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -5518,8 +5582,8 @@ fn cyclonedx_export_with_workspace_member() -> Result<()> {
         child2 = { workspace = true }
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -5533,8 +5597,8 @@ fn cyclonedx_export_with_workspace_member() -> Result<()> {
         dependencies = ["iniconfig==2.0.0"]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -5548,8 +5612,8 @@ fn cyclonedx_export_with_workspace_member() -> Result<()> {
         dependencies = []
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -5665,7 +5729,7 @@ fn cyclonedx_export_with_workspace_member() -> Result<()> {
 
 #[test]
 fn cyclonedx_export_workspace_non_root() -> Result<()> {
-    let context = TestContext::new("3.12").with_cyclonedx_filters();
+    let context = uv_test::test_context!("3.12").with_cyclonedx_filters();
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -5683,8 +5747,8 @@ fn cyclonedx_export_workspace_non_root() -> Result<()> {
         child = { workspace = true }
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -5698,8 +5762,8 @@ fn cyclonedx_export_workspace_non_root() -> Result<()> {
         dependencies = ["iniconfig==2.0.0"]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -5768,7 +5832,7 @@ fn cyclonedx_export_workspace_non_root() -> Result<()> {
 
 #[test]
 fn cyclonedx_export_workspace_with_extras() -> Result<()> {
-    let context = TestContext::new("3.12").with_cyclonedx_filters();
+    let context = uv_test::test_context!("3.12").with_cyclonedx_filters();
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -5790,8 +5854,8 @@ fn cyclonedx_export_workspace_with_extras() -> Result<()> {
         child = { workspace = true }
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -5805,8 +5869,8 @@ fn cyclonedx_export_workspace_with_extras() -> Result<()> {
         dependencies = ["typing-extensions==4.10.0"]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -5993,7 +6057,7 @@ fn cyclonedx_export_workspace_with_extras() -> Result<()> {
 
 #[test]
 fn cyclonedx_export_workspace_frozen() -> Result<()> {
-    let context = TestContext::new("3.12").with_cyclonedx_filters();
+    let context = uv_test::test_context!("3.12").with_cyclonedx_filters();
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -6011,8 +6075,8 @@ fn cyclonedx_export_workspace_frozen() -> Result<()> {
         child = { workspace = true }
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -6026,8 +6090,8 @@ fn cyclonedx_export_workspace_frozen() -> Result<()> {
         dependencies = ["iniconfig==2.0.0"]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -6157,7 +6221,7 @@ fn cyclonedx_export_workspace_frozen() -> Result<()> {
 
 #[test]
 fn cyclonedx_export_workspace_all_packages() -> Result<()> {
-    let context = TestContext::new("3.12").with_cyclonedx_filters();
+    let context = uv_test::test_context!("3.12").with_cyclonedx_filters();
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -6172,8 +6236,8 @@ fn cyclonedx_export_workspace_all_packages() -> Result<()> {
         members = ["child1", "child2"]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -6187,8 +6251,8 @@ fn cyclonedx_export_workspace_all_packages() -> Result<()> {
         dependencies = ["iniconfig==2.0.0"]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -6202,8 +6266,8 @@ fn cyclonedx_export_workspace_all_packages() -> Result<()> {
         dependencies = ["sniffio==1.3.1"]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -6349,7 +6413,7 @@ fn cyclonedx_export_workspace_all_packages() -> Result<()> {
 
 #[test]
 fn cyclonedx_export_all_packages_non_workspace_root_dependency() -> Result<()> {
-    let context = TestContext::new("3.12").with_cyclonedx_filters();
+    let context = uv_test::test_context!("3.12").with_cyclonedx_filters();
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -6361,8 +6425,8 @@ fn cyclonedx_export_all_packages_non_workspace_root_dependency() -> Result<()> {
         dependencies = ["urllib3==2.2.0"]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -6449,7 +6513,7 @@ fn cyclonedx_export_all_packages_non_workspace_root_dependency() -> Result<()> {
 // Contains a combination of combination of workspace and registry deps, with another workspace dep not depended on by the root
 #[test]
 fn cyclonedx_export_workspace_mixed_dependencies() -> Result<()> {
-    let context = TestContext::new("3.12").with_cyclonedx_filters();
+    let context = uv_test::test_context!("3.12").with_cyclonedx_filters();
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -6467,8 +6531,8 @@ fn cyclonedx_export_workspace_mixed_dependencies() -> Result<()> {
         child1 = { workspace = true }
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -6485,8 +6549,8 @@ fn cyclonedx_export_workspace_mixed_dependencies() -> Result<()> {
         child2 = { workspace = true }
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -6500,8 +6564,8 @@ fn cyclonedx_export_workspace_mixed_dependencies() -> Result<()> {
         dependencies = ["sniffio==1.3.1"]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -6630,7 +6694,7 @@ fn cyclonedx_export_workspace_mixed_dependencies() -> Result<()> {
 
 #[test]
 fn cyclonedx_export_dependency_marker() -> Result<()> {
-    let context = TestContext::new("3.12").with_cyclonedx_filters();
+    let context = uv_test::test_context!("3.12").with_cyclonedx_filters();
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -6645,8 +6709,8 @@ fn cyclonedx_export_dependency_marker() -> Result<()> {
         ]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -6733,7 +6797,7 @@ fn cyclonedx_export_dependency_marker() -> Result<()> {
 
 #[test]
 fn cyclonedx_export_multiple_dependency_markers() -> Result<()> {
-    let context = TestContext::new("3.12").with_cyclonedx_filters();
+    let context = uv_test::test_context!("3.12").with_cyclonedx_filters();
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -6748,8 +6812,8 @@ fn cyclonedx_export_multiple_dependency_markers() -> Result<()> {
         ]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -6862,7 +6926,7 @@ fn cyclonedx_export_multiple_dependency_markers() -> Result<()> {
 
 #[test]
 fn cyclonedx_export_dependency_extra() -> Result<()> {
-    let context = TestContext::new("3.12").with_cyclonedx_filters();
+    let context = uv_test::test_context!("3.12").with_cyclonedx_filters();
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -6874,8 +6938,8 @@ fn cyclonedx_export_dependency_extra() -> Result<()> {
         dependencies = ["cryptography[ssh]==42.0.5"]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -6994,7 +7058,7 @@ fn cyclonedx_export_dependency_extra() -> Result<()> {
 
 #[test]
 fn cyclonedx_export_prune() -> Result<()> {
-    let context = TestContext::new("3.12").with_cyclonedx_filters();
+    let context = uv_test::test_context!("3.12").with_cyclonedx_filters();
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -7182,7 +7246,7 @@ fn cyclonedx_export_prune() -> Result<()> {
 
 #[test]
 fn cyclonedx_export_group() -> Result<()> {
-    let context = TestContext::new("3.12").with_cyclonedx_filters();
+    let context = uv_test::test_context!("3.12").with_cyclonedx_filters();
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -7420,7 +7484,7 @@ fn cyclonedx_export_group() -> Result<()> {
 
 #[test]
 fn cyclonedx_export_non_project() -> Result<()> {
-    let context = TestContext::new("3.12").with_cyclonedx_filters();
+    let context = uv_test::test_context!("3.12").with_cyclonedx_filters();
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -7542,7 +7606,7 @@ fn cyclonedx_export_non_project() -> Result<()> {
 
 #[test]
 fn cyclonedx_export_no_emit() -> Result<()> {
-    let context = TestContext::new("3.12").with_cyclonedx_filters();
+    let context = uv_test::test_context!("3.12").with_cyclonedx_filters();
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -7560,8 +7624,8 @@ fn cyclonedx_export_no_emit() -> Result<()> {
         child = { workspace = true }
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -7575,8 +7639,8 @@ fn cyclonedx_export_no_emit() -> Result<()> {
         dependencies = ["iniconfig==2.0.0"]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -7746,7 +7810,7 @@ fn cyclonedx_export_no_emit() -> Result<()> {
 
 #[test]
 fn cyclonedx_export_relative_path() -> Result<()> {
-    let context = TestContext::new("3.12").with_cyclonedx_filters();
+    let context = uv_test::test_context!("3.12").with_cyclonedx_filters();
 
     let dependency = context.temp_dir.child("dependency");
     dependency.child("pyproject.toml").write_str(
@@ -7758,8 +7822,8 @@ fn cyclonedx_export_relative_path() -> Result<()> {
         dependencies = ["iniconfig==2.0.0"]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -7776,8 +7840,8 @@ fn cyclonedx_export_relative_path() -> Result<()> {
         dependency = { path = "../dependency" }
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -7859,7 +7923,7 @@ fn cyclonedx_export_relative_path() -> Result<()> {
 
 #[test]
 fn cyclonedx_export_cyclic_dependencies() -> Result<()> {
-    let context = TestContext::new("3.12").with_cyclonedx_filters();
+    let context = uv_test::test_context!("3.12").with_cyclonedx_filters();
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -8058,7 +8122,7 @@ fn cyclonedx_export_cyclic_dependencies() -> Result<()> {
 
 #[test]
 fn cyclonedx_export_dev_dependencies() -> Result<()> {
-    let context = TestContext::new("3.12").with_cyclonedx_filters();
+    let context = uv_test::test_context!("3.12").with_cyclonedx_filters();
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -8073,8 +8137,8 @@ fn cyclonedx_export_dev_dependencies() -> Result<()> {
         dev-dependencies = ["urllib3==2.2.1"]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -8271,7 +8335,7 @@ fn cyclonedx_export_dev_dependencies() -> Result<()> {
 
 #[test]
 fn cyclonedx_export_all_packages_conflicting_workspace_members() -> Result<()> {
-    let context = TestContext::new("3.12").with_cyclonedx_filters();
+    let context = uv_test::test_context!("3.12").with_cyclonedx_filters();
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -8294,8 +8358,8 @@ fn cyclonedx_export_all_packages_conflicting_workspace_members() -> Result<()> {
         ]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -8309,8 +8373,8 @@ fn cyclonedx_export_all_packages_conflicting_workspace_members() -> Result<()> {
         dependencies = ["sortedcontainers==2.4.0"]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
         "#,
     )?;
 
@@ -8424,7 +8488,7 @@ fn cyclonedx_export_all_packages_conflicting_workspace_members() -> Result<()> {
 
 #[test]
 fn cyclonedx_export_alternative_registry() -> Result<()> {
-    let context = TestContext::new("3.12")
+    let context = uv_test::test_context!("3.12")
         .with_cyclonedx_filters()
         .with_exclude_newer("2025-01-30T00:00:00Z");
 
@@ -8438,8 +8502,8 @@ fn cyclonedx_export_alternative_registry() -> Result<()> {
         dependencies = ["torch==2.6.0"]
 
         [build-system]
-        requires = ["setuptools>=42"]
-        build-backend = "setuptools.build_meta"
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
 
         [[tool.uv.index]]
         name = "pytorch-cpu"
@@ -8656,7 +8720,7 @@ fn cyclonedx_export_alternative_registry() -> Result<()> {
 
 #[test]
 fn cyclonedx_export_virtual_workspace_fixture() -> Result<()> {
-    let context = TestContext::new("3.12").with_cyclonedx_filters();
+    let context = uv_test::test_context!("3.12").with_cyclonedx_filters();
 
     let workspace = context.temp_dir.child("workspace");
     copy_dir_ignore(
@@ -8821,6 +8885,64 @@ fn cyclonedx_export_virtual_workspace_fixture() -> Result<()> {
     Using CPython 3.12.[X] interpreter at: [PYTHON-3.12]
     Resolved 7 packages in [TIME]
     warning: `uv export --format=cyclonedx1.5` is experimental and may change without warning. Pass `--preview-features sbom-export` to disable this warning.
+    "#);
+
+    Ok(())
+}
+
+#[test]
+fn pylock_toml_filter_by_requires_python() -> Result<()> {
+    let context = uv_test::test_context!("3.12");
+
+    let pyproject_toml = context.temp_dir.child("pyproject.toml");
+    pyproject_toml.write_str(
+        r#"
+        [project]
+        name = "project"
+        version = "0.1.0"
+        requires-python = ">=3.12"
+        dependencies = ["numpy==1.26.4"]
+
+        [build-system]
+        requires = ["uv_build>=0.7,<10000"]
+        build-backend = "uv_build"
+        "#,
+    )?;
+
+    context.lock().assert().success();
+
+    uv_snapshot!(context.filters(), context.export().arg("--format").arg("pylock.toml"), @r#"
+    success: true
+    exit_code: 0
+    ----- stdout -----
+    # This file was autogenerated by uv via the following command:
+    #    uv export --cache-dir [CACHE_DIR] --format pylock.toml
+    lock-version = "1.0"
+    created-by = "uv"
+    requires-python = ">=3.12"
+
+    [[packages]]
+    name = "numpy"
+    version = "1.26.4"
+    index = "https://pypi.org/simple"
+    sdist = { url = "https://files.pythonhosted.org/packages/65/6e/09db70a523a96d25e115e71cc56a6f9031e7b8cd166c1ac8438307c14058/numpy-1.26.4.tar.gz", upload-time = 2024-02-06T00:26:44Z, size = 15786129, hashes = { sha256 = "2a02aba9ed12e4ac4eb3ea9421c420301a0c6460d9830d74a9df87efa4912010" } }
+    wheels = [
+        { url = "https://files.pythonhosted.org/packages/95/12/8f2020a8e8b8383ac0177dc9570aad031a3beb12e38847f7129bacd96228/numpy-1.26.4-cp312-cp312-macosx_10_9_x86_64.whl", upload-time = 2024-02-05T23:55:32Z, size = 20335901, hashes = { sha256 = "b3ce300f3644fb06443ee2222c2201dd3a89ea6040541412b8fa189341847218" } },
+        { url = "https://files.pythonhosted.org/packages/75/5b/ca6c8bd14007e5ca171c7c03102d17b4f4e0ceb53957e8c44343a9546dcc/numpy-1.26.4-cp312-cp312-macosx_11_0_arm64.whl", upload-time = 2024-02-05T23:55:56Z, size = 13685868, hashes = { sha256 = "03a8c78d01d9781b28a6989f6fa1bb2c4f2d51201cf99d3dd875df6fbd96b23b" } },
+        { url = "https://files.pythonhosted.org/packages/79/f8/97f10e6755e2a7d027ca783f63044d5b1bc1ae7acb12afe6a9b4286eac17/numpy-1.26.4-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", upload-time = 2024-02-05T23:56:20Z, size = 13925109, hashes = { sha256 = "9fad7dcb1aac3c7f0584a5a8133e3a43eeb2fe127f47e3632d43d677c66c102b" } },
+        { url = "https://files.pythonhosted.org/packages/0f/50/de23fde84e45f5c4fda2488c759b69990fd4512387a8632860f3ac9cd225/numpy-1.26.4-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", upload-time = 2024-02-05T23:56:56Z, size = 17950613, hashes = { sha256 = "675d61ffbfa78604709862923189bad94014bef562cc35cf61d3a07bba02a7ed" } },
+        { url = "https://files.pythonhosted.org/packages/4c/0c/9c603826b6465e82591e05ca230dfc13376da512b25ccd0894709b054ed0/numpy-1.26.4-cp312-cp312-musllinux_1_1_aarch64.whl", upload-time = 2024-02-05T23:57:21Z, size = 13572172, hashes = { sha256 = "ab47dbe5cc8210f55aa58e4805fe224dac469cde56b9f731a4c098b91917159a" } },
+        { url = "https://files.pythonhosted.org/packages/76/8c/2ba3902e1a0fc1c74962ea9bb33a534bb05984ad7ff9515bf8d07527cadd/numpy-1.26.4-cp312-cp312-musllinux_1_1_x86_64.whl", upload-time = 2024-02-05T23:57:56Z, size = 17786643, hashes = { sha256 = "1dda2e7b4ec9dd512f84935c5f126c8bd8b9f2fc001e9f54af255e8c5f16b0e0" } },
+        { url = "https://files.pythonhosted.org/packages/28/4a/46d9e65106879492374999e76eb85f87b15328e06bd1550668f79f7b18c6/numpy-1.26.4-cp312-cp312-win32.whl", upload-time = 2024-02-05T23:58:08Z, size = 5677803, hashes = { sha256 = "50193e430acfc1346175fcbdaa28ffec49947a06918b7b92130744e81e640110" } },
+        { url = "https://files.pythonhosted.org/packages/16/2e/86f24451c2d530c88daf997cb8d6ac622c1d40d19f5a031ed68a4b73a374/numpy-1.26.4-cp312-cp312-win_amd64.whl", upload-time = 2024-02-05T23:58:36Z, size = 15517754, hashes = { sha256 = "08beddf13648eb95f8d867350f6a018a4be2e5ad54c8d8caed89ebca558b2818" } },
+    ]
+
+    [[packages]]
+    name = "project"
+    directory = { path = ".", editable = true }
+
+    ----- stderr -----
+    Resolved 2 packages in [TIME]
     "#);
 
     Ok(())

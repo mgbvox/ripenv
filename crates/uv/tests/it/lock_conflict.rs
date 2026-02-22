@@ -2,7 +2,7 @@ use anyhow::Result;
 use assert_fs::prelude::*;
 use insta::assert_snapshot;
 
-use crate::common::{TestContext, uv_snapshot};
+use uv_test::uv_snapshot;
 
 // All of the tests in this file should use `tool.uv.conflicts` in some way.
 //
@@ -20,7 +20,7 @@ use crate::common::{TestContext, uv_snapshot};
 /// <https://github.com/astral-sh/uv/issues/8024>
 #[test]
 fn extra_basic() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     // First we test that resolving with two extras that have
     // conflicting dependencies fails.
@@ -211,7 +211,7 @@ fn extra_basic() -> Result<()> {
 /// extras instead of two.
 #[test]
 fn extra_basic_three_extras() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     // First we test that resolving with two extras that have
     // conflicting dependencies fails.
@@ -357,7 +357,7 @@ fn extra_basic_three_extras() -> Result<()> {
 /// distinct groups of extras.
 #[test]
 fn extra_multiple_not_conflicting1() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -487,7 +487,7 @@ fn extra_multiple_not_conflicting1() -> Result<()> {
 /// conflicting.)
 #[test]
 fn extra_multiple_not_conflicting2() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -648,7 +648,7 @@ fn extra_multiple_not_conflicting2() -> Result<()> {
 /// extras correctly.
 #[test]
 fn extra_multiple_independent() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     // If we don't declare any conflicting extras, then resolution
     // will of course fail.
@@ -871,7 +871,7 @@ fn extra_multiple_independent() -> Result<()> {
 
 #[test]
 fn extra_config_change_ignore_lockfile() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -1005,7 +1005,7 @@ fn extra_config_change_ignore_lockfile() -> Result<()> {
 /// enables a conflicting extra.
 #[test]
 fn extra_unconditional() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let root_pyproject_toml = context.temp_dir.child("pyproject.toml");
     root_pyproject_toml.write_str(
@@ -1158,7 +1158,7 @@ fn extra_unconditional() -> Result<()> {
 /// would be completely ignored here.
 #[test]
 fn extra_unconditional_non_conflicting() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let root_pyproject_toml = context.temp_dir.child("pyproject.toml");
     root_pyproject_toml.write_str(
@@ -1236,7 +1236,7 @@ fn extra_unconditional_non_conflicting() -> Result<()> {
 
 #[test]
 fn extra_unconditional_in_optional() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let root_pyproject_toml = context.temp_dir.child("pyproject.toml");
     root_pyproject_toml.write_str(
@@ -1348,7 +1348,7 @@ fn extra_unconditional_in_optional() -> Result<()> {
 
 #[test]
 fn extra_unconditional_non_local_conflict() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let root_pyproject_toml = context.temp_dir.child("pyproject.toml");
     root_pyproject_toml.write_str(
@@ -1454,7 +1454,7 @@ fn extra_unconditional_non_local_conflict() -> Result<()> {
 /// packages in a workspace.
 #[test]
 fn extra_nested_across_workspace() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let root_pyproject_toml = context.temp_dir.child("pyproject.toml");
     root_pyproject_toml.write_str(
@@ -1656,7 +1656,7 @@ fn extra_nested_across_workspace() -> Result<()> {
 /// The project declares conflicting extras, but one of the extras directly depends on the other.
 #[test]
 fn extra_depends_on_conflicting_extra() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -1708,7 +1708,7 @@ fn extra_depends_on_conflicting_extra() -> Result<()> {
 /// another package.
 #[test]
 fn extra_depends_on_conflicting_extra_transitive() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -1899,7 +1899,7 @@ fn extra_depends_on_conflicting_extra_transitive() -> Result<()> {
 /// This tests a "basic" case for specifying conflicting groups.
 #[test]
 fn group_basic() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     // First we test that resolving with two groups that have
     // conflicting dependencies fails.
@@ -2082,7 +2082,7 @@ fn group_basic() -> Result<()> {
 /// default.
 #[test]
 fn group_default() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     // Tell uv about the conflicting groups, which forces it to resolve each in
     // their own fork.
@@ -2262,7 +2262,7 @@ fn group_default() -> Result<()> {
 /// This tests a case where we declare an extra and a group as conflicting.
 #[test]
 fn mixed() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     // First we test that resolving with a conflicting extra
     // and group fails.
@@ -2450,7 +2450,7 @@ fn mixed() -> Result<()> {
 
 #[test]
 fn multiple_sources_index_disjoint_extras() -> Result<()> {
-    let context = TestContext::new("3.12").with_exclude_newer("2025-01-30T00:00Z");
+    let context = uv_test::test_context!("3.12").with_exclude_newer("2025-01-30T00:00Z");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -2600,7 +2600,7 @@ fn multiple_sources_index_disjoint_extras() -> Result<()> {
 
 #[test]
 fn multiple_sources_index_disjoint_groups() -> Result<()> {
-    let context = TestContext::new("3.12").with_exclude_newer("2025-01-30T00:00Z");
+    let context = uv_test::test_context!("3.12").with_exclude_newer("2025-01-30T00:00Z");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -2749,7 +2749,7 @@ fn multiple_sources_index_disjoint_groups() -> Result<()> {
 
 #[test]
 fn multiple_sources_index_disjoint_extras_with_extra() -> Result<()> {
-    let context = TestContext::new("3.12").with_exclude_newer("2025-01-30T00:00Z");
+    let context = uv_test::test_context!("3.12").with_exclude_newer("2025-01-30T00:00Z");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -2918,7 +2918,7 @@ fn multiple_sources_index_disjoint_extras_with_extra() -> Result<()> {
 
 #[test]
 fn multiple_sources_index_disjoint_extras_with_marker() -> Result<()> {
-    let context = TestContext::new("3.12").with_exclude_newer("2025-01-30T00:00Z");
+    let context = uv_test::test_context!("3.12").with_exclude_newer("2025-01-30T00:00Z");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -3098,7 +3098,7 @@ fn multiple_sources_index_disjoint_extras_with_marker() -> Result<()> {
 /// despite `sniffio` being an unconditional dependency.
 #[test]
 fn non_optional_dependency_extra() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -3145,7 +3145,7 @@ fn non_optional_dependency_extra() -> Result<()> {
 /// This test never regressed, but we added it here to ensure it doesn't.
 #[test]
 fn non_optional_dependency_group() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -3193,7 +3193,7 @@ fn non_optional_dependency_group() -> Result<()> {
 /// This test never regressed, but we added it here to ensure it doesn't.
 #[test]
 fn non_optional_dependency_mixed() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -3249,7 +3249,7 @@ fn non_optional_dependency_mixed() -> Result<()> {
 /// [1]: <https://github.com/astral-sh/uv/issues/9289>
 #[test]
 fn shared_optional_dependency_extra1() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -3389,7 +3389,7 @@ fn shared_optional_dependency_extra1() -> Result<()> {
 /// Ref <https://github.com/astral-sh/uv/issues/9289>
 #[test]
 fn shared_optional_dependency_group1() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -3528,7 +3528,7 @@ fn shared_optional_dependency_group1() -> Result<()> {
 /// Ref <https://github.com/astral-sh/uv/issues/9289>
 #[test]
 fn shared_optional_dependency_mixed1() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -3676,7 +3676,7 @@ fn shared_optional_dependency_mixed1() -> Result<()> {
 /// Regression test for: <https://github.com/astral-sh/uv/issues/9640>
 #[test]
 fn shared_optional_dependency_extra2() -> Result<()> {
-    let context = TestContext::new("3.11");
+    let context = uv_test::test_context!("3.11");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -3817,7 +3817,7 @@ fn shared_optional_dependency_extra2() -> Result<()> {
 /// Regression test for: <https://github.com/astral-sh/uv/issues/9640>
 #[test]
 fn shared_optional_dependency_group2() -> Result<()> {
-    let context = TestContext::new("3.11");
+    let context = uv_test::test_context!("3.11");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -3961,7 +3961,7 @@ fn shared_optional_dependency_group2() -> Result<()> {
 /// Regression test for: <https://github.com/astral-sh/uv/issues/9640>
 #[test]
 fn shared_optional_dependency_mixed2() -> Result<()> {
-    let context = TestContext::new("3.11");
+    let context = uv_test::test_context!("3.11");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -4110,7 +4110,7 @@ fn shared_optional_dependency_mixed2() -> Result<()> {
 /// Regression test for: <https://github.com/astral-sh/uv/issues/9289>
 #[test]
 fn shared_dependency_extra() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -4285,7 +4285,7 @@ fn shared_dependency_extra() -> Result<()> {
 /// Regression test for: <https://github.com/astral-sh/uv/issues/9289>
 #[test]
 fn shared_dependency_group() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -4459,7 +4459,7 @@ fn shared_dependency_group() -> Result<()> {
 /// Regression test for: <https://github.com/astral-sh/uv/issues/9289>
 #[test]
 fn shared_dependency_mixed() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -4647,7 +4647,7 @@ fn shared_dependency_mixed() -> Result<()> {
 /// Ref <https://github.com/astral-sh/uv/issues/9289>
 #[test]
 fn extras_are_namespaced() -> Result<()> {
-    let context = TestContext::new("3.11");
+    let context = uv_test::test_context!("3.11");
 
     let root_pyproject_toml = context.temp_dir.child("pyproject.toml");
     root_pyproject_toml.write_str(
@@ -4856,7 +4856,7 @@ conflicts = [
 /// [1]: <https://github.com/astral-sh/uv/issues/9289>
 #[test]
 fn jinja_no_conflict_markers1() -> Result<()> {
-    let context = TestContext::new("3.12").with_exclude_newer("2025-01-30T00:00Z");
+    let context = uv_test::test_context!("3.12").with_exclude_newer("2025-01-30T00:00Z");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -5018,7 +5018,7 @@ fn jinja_no_conflict_markers1() -> Result<()> {
 /// shouldn't see any conflict markers in the lock file here.
 #[test]
 fn jinja_no_conflict_markers2() -> Result<()> {
-    let context = TestContext::new("3.12").with_exclude_newer("2025-01-30T00:00Z");
+    let context = uv_test::test_context!("3.12").with_exclude_newer("2025-01-30T00:00Z");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -5193,7 +5193,7 @@ fn jinja_no_conflict_markers2() -> Result<()> {
 /// Ref: <https://github.com/astral-sh/uv/pull/9370#discussion_r1876083284>
 #[test]
 fn collision_extra() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -5411,7 +5411,7 @@ fn collision_extra() -> Result<()> {
 /// Ref: <https://github.com/astral-sh/uv/pull/9370#discussion_r1875958904>
 #[test]
 fn extra_inferences() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -7453,7 +7453,7 @@ fn extra_inferences() -> Result<()> {
 /// [1]: <https://github.com/astral-sh/uv/issues/9296>
 #[test]
 fn deduplicate_resolution_markers() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -7602,7 +7602,7 @@ fn deduplicate_resolution_markers() -> Result<()> {
 /// Ref: <https://github.com/astral-sh/uv/issues/11133>
 #[test]
 fn incorrect_extra_simplification_leads_to_multiple_torch_packages() -> Result<()> {
-    let context = TestContext::new("3.12").with_exclude_newer("2025-02-07T00:00Z");
+    let context = uv_test::test_context!("3.12").with_exclude_newer("2025-02-07T00:00Z");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -10352,7 +10352,7 @@ fn incorrect_extra_simplification_leads_to_multiple_torch_packages() -> Result<(
 /// Ref: <https://github.com/astral-sh/uv/issues/11479>
 #[test]
 fn duplicate_torch_and_sympy_because_of_wrong_inferences() -> Result<()> {
-    let context = TestContext::new("3.12").with_exclude_newer("2025-02-14T00:00Z");
+    let context = uv_test::test_context!("3.12").with_exclude_newer("2025-02-14T00:00Z");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -10435,18 +10435,12 @@ fn duplicate_torch_and_sympy_because_of_wrong_inferences() -> Result<()> {
         revision = 3
         requires-python = ">=3.10"
         resolution-markers = [
-            "python_full_version >= '3.12' and sys_platform == 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform == 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform == 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and sys_platform == 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform == 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform == 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
+            "python_full_version >= '3.12' and sys_platform == 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
+            "python_full_version >= '3.12' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
+            "python_full_version == '3.11.*' and sys_platform == 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
+            "python_full_version == '3.11.*' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
+            "python_full_version < '3.11' and sys_platform == 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
+            "python_full_version < '3.11' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
             "python_full_version >= '3.12' and sys_platform == 'win32' and extra == 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra == 'extra-4-test-m3gnet'",
             "python_full_version >= '3.12' and sys_platform != 'win32' and extra == 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra == 'extra-4-test-m3gnet'",
             "python_full_version == '3.11.*' and sys_platform == 'win32' and extra == 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra == 'extra-4-test-m3gnet'",
@@ -10462,15 +10456,12 @@ fn duplicate_torch_and_sympy_because_of_wrong_inferences() -> Result<()> {
             "python_full_version == '3.11.*' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra == 'extra-4-test-m3gnet'",
             "python_full_version < '3.11' and sys_platform == 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra == 'extra-4-test-m3gnet'",
             "python_full_version < '3.11' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra == 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and sys_platform == 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform == 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform == 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
+            "python_full_version >= '3.12' and sys_platform == 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
+            "python_full_version >= '3.12' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
+            "python_full_version == '3.11.*' and sys_platform == 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
+            "python_full_version == '3.11.*' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
+            "python_full_version < '3.11' and sys_platform == 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
+            "python_full_version < '3.11' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
         ]
         conflicts = [[
             { package = "test", extra = "alignn" },
@@ -11763,18 +11754,9 @@ fn duplicate_torch_and_sympy_because_of_wrong_inferences() -> Result<()> {
         version = "12.4.5.8"
         source = { registry = "https://pypi.org/simple" }
         resolution-markers = [
-            "python_full_version >= '3.12' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
+            "python_full_version >= '3.12' and sys_platform != 'win32'",
+            "python_full_version == '3.11.*' and sys_platform != 'win32'",
+            "python_full_version < '3.11' and sys_platform != 'win32'",
         ]
         wheels = [
             { url = "https://files.pythonhosted.org/packages/7f/7f/7fbae15a3982dc9595e49ce0f19332423b260045d0a6afe93cdbe2f1f624/nvidia_cublas_cu12-12.4.5.8-py3-none-manylinux2014_aarch64.whl", hash = "sha256:0f8aa1706812e00b9f19dfe0cdb3999b092ccb8ca168c0db5b8ea712456fd9b3", size = 363333771, upload-time = "2024-06-18T19:28:09.881Z" },
@@ -11807,18 +11789,9 @@ fn duplicate_torch_and_sympy_because_of_wrong_inferences() -> Result<()> {
         version = "12.4.127"
         source = { registry = "https://pypi.org/simple" }
         resolution-markers = [
-            "python_full_version >= '3.12' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
+            "python_full_version >= '3.12' and sys_platform != 'win32'",
+            "python_full_version == '3.11.*' and sys_platform != 'win32'",
+            "python_full_version < '3.11' and sys_platform != 'win32'",
         ]
         wheels = [
             { url = "https://files.pythonhosted.org/packages/93/b5/9fb3d00386d3361b03874246190dfec7b206fd74e6e287b26a8fcb359d95/nvidia_cuda_cupti_cu12-12.4.127-py3-none-manylinux2014_aarch64.whl", hash = "sha256:79279b35cf6f91da114182a5ce1864997fd52294a87a16179ce275773799458a", size = 12354556, upload-time = "2024-06-18T19:30:40.546Z" },
@@ -11851,18 +11824,9 @@ fn duplicate_torch_and_sympy_because_of_wrong_inferences() -> Result<()> {
         version = "12.4.127"
         source = { registry = "https://pypi.org/simple" }
         resolution-markers = [
-            "python_full_version >= '3.12' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
+            "python_full_version >= '3.12' and sys_platform != 'win32'",
+            "python_full_version == '3.11.*' and sys_platform != 'win32'",
+            "python_full_version < '3.11' and sys_platform != 'win32'",
         ]
         wheels = [
             { url = "https://files.pythonhosted.org/packages/77/aa/083b01c427e963ad0b314040565ea396f914349914c298556484f799e61b/nvidia_cuda_nvrtc_cu12-12.4.127-py3-none-manylinux2014_aarch64.whl", hash = "sha256:0eedf14185e04b76aa05b1fea04133e59f465b6f960c0cbf4e37c3cb6b0ea198", size = 24133372, upload-time = "2024-06-18T19:32:00.576Z" },
@@ -11895,18 +11859,9 @@ fn duplicate_torch_and_sympy_because_of_wrong_inferences() -> Result<()> {
         version = "12.4.127"
         source = { registry = "https://pypi.org/simple" }
         resolution-markers = [
-            "python_full_version >= '3.12' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
+            "python_full_version >= '3.12' and sys_platform != 'win32'",
+            "python_full_version == '3.11.*' and sys_platform != 'win32'",
+            "python_full_version < '3.11' and sys_platform != 'win32'",
         ]
         wheels = [
             { url = "https://files.pythonhosted.org/packages/a1/aa/b656d755f474e2084971e9a297def515938d56b466ab39624012070cb773/nvidia_cuda_runtime_cu12-12.4.127-py3-none-manylinux2014_aarch64.whl", hash = "sha256:961fe0e2e716a2a1d967aab7caee97512f71767f852f67432d572e36cb3a11f3", size = 894177, upload-time = "2024-06-18T19:32:52.877Z" },
@@ -11941,18 +11896,9 @@ fn duplicate_torch_and_sympy_because_of_wrong_inferences() -> Result<()> {
         version = "9.1.0.70"
         source = { registry = "https://pypi.org/simple" }
         resolution-markers = [
-            "python_full_version >= '3.12' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
+            "python_full_version >= '3.12' and sys_platform != 'win32'",
+            "python_full_version == '3.11.*' and sys_platform != 'win32'",
+            "python_full_version < '3.11' and sys_platform != 'win32'",
         ]
         dependencies = [
             { name = "nvidia-cublas-cu12", version = "12.4.5.8", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-4-test-all' or extra == 'extra-4-test-chgnet' or (extra != 'extra-4-test-alignn' and extra != 'extra-4-test-m3gnet')" },
@@ -11987,18 +11933,9 @@ fn duplicate_torch_and_sympy_because_of_wrong_inferences() -> Result<()> {
         version = "11.2.1.3"
         source = { registry = "https://pypi.org/simple" }
         resolution-markers = [
-            "python_full_version >= '3.12' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
+            "python_full_version >= '3.12' and sys_platform != 'win32'",
+            "python_full_version == '3.11.*' and sys_platform != 'win32'",
+            "python_full_version < '3.11' and sys_platform != 'win32'",
         ]
         dependencies = [
             { name = "nvidia-nvjitlink-cu12", marker = "extra == 'extra-4-test-all' or extra == 'extra-4-test-chgnet' or (extra != 'extra-4-test-alignn' and extra != 'extra-4-test-m3gnet')" },
@@ -12034,18 +11971,9 @@ fn duplicate_torch_and_sympy_because_of_wrong_inferences() -> Result<()> {
         version = "10.3.5.147"
         source = { registry = "https://pypi.org/simple" }
         resolution-markers = [
-            "python_full_version >= '3.12' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
+            "python_full_version >= '3.12' and sys_platform != 'win32'",
+            "python_full_version == '3.11.*' and sys_platform != 'win32'",
+            "python_full_version < '3.11' and sys_platform != 'win32'",
         ]
         wheels = [
             { url = "https://files.pythonhosted.org/packages/80/9c/a79180e4d70995fdf030c6946991d0171555c6edf95c265c6b2bf7011112/nvidia_curand_cu12-10.3.5.147-py3-none-manylinux2014_aarch64.whl", hash = "sha256:1f173f09e3e3c76ab084aba0de819c49e56614feae5c12f69883f4ae9bb5fad9", size = 56314811, upload-time = "2024-06-18T19:34:48.575Z" },
@@ -12083,18 +12011,9 @@ fn duplicate_torch_and_sympy_because_of_wrong_inferences() -> Result<()> {
         version = "11.6.1.9"
         source = { registry = "https://pypi.org/simple" }
         resolution-markers = [
-            "python_full_version >= '3.12' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
+            "python_full_version >= '3.12' and sys_platform != 'win32'",
+            "python_full_version == '3.11.*' and sys_platform != 'win32'",
+            "python_full_version < '3.11' and sys_platform != 'win32'",
         ]
         dependencies = [
             { name = "nvidia-cublas-cu12", version = "12.4.5.8", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-4-test-all' or extra == 'extra-4-test-chgnet' or (extra != 'extra-4-test-alignn' and extra != 'extra-4-test-m3gnet')" },
@@ -12135,18 +12054,9 @@ fn duplicate_torch_and_sympy_because_of_wrong_inferences() -> Result<()> {
         version = "12.3.1.170"
         source = { registry = "https://pypi.org/simple" }
         resolution-markers = [
-            "python_full_version >= '3.12' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
+            "python_full_version >= '3.12' and sys_platform != 'win32'",
+            "python_full_version == '3.11.*' and sys_platform != 'win32'",
+            "python_full_version < '3.11' and sys_platform != 'win32'",
         ]
         dependencies = [
             { name = "nvidia-nvjitlink-cu12", marker = "extra == 'extra-4-test-all' or extra == 'extra-4-test-chgnet' or (extra != 'extra-4-test-alignn' and extra != 'extra-4-test-m3gnet')" },
@@ -12187,18 +12097,9 @@ fn duplicate_torch_and_sympy_because_of_wrong_inferences() -> Result<()> {
         version = "2.21.5"
         source = { registry = "https://pypi.org/simple" }
         resolution-markers = [
-            "python_full_version >= '3.12' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
+            "python_full_version >= '3.12' and sys_platform != 'win32'",
+            "python_full_version == '3.11.*' and sys_platform != 'win32'",
+            "python_full_version < '3.11' and sys_platform != 'win32'",
         ]
         wheels = [
             { url = "https://files.pythonhosted.org/packages/df/99/12cd266d6233f47d00daf3a72739872bdc10267d0383508b0b9c84a18bb6/nvidia_nccl_cu12-2.21.5-py3-none-manylinux2014_x86_64.whl", hash = "sha256:8579076d30a8c24988834445f8d633c697d42397e92ffc3f63fa26766d25e0a0", size = 188654414, upload-time = "2024-04-03T15:32:57.427Z" },
@@ -12239,18 +12140,9 @@ fn duplicate_torch_and_sympy_because_of_wrong_inferences() -> Result<()> {
         version = "12.4.127"
         source = { registry = "https://pypi.org/simple" }
         resolution-markers = [
-            "python_full_version >= '3.12' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
+            "python_full_version >= '3.12' and sys_platform != 'win32'",
+            "python_full_version == '3.11.*' and sys_platform != 'win32'",
+            "python_full_version < '3.11' and sys_platform != 'win32'",
         ]
         wheels = [
             { url = "https://files.pythonhosted.org/packages/06/39/471f581edbb7804b39e8063d92fc8305bdc7a80ae5c07dbe6ea5c50d14a5/nvidia_nvtx_cu12-12.4.127-py3-none-manylinux2014_aarch64.whl", hash = "sha256:7959ad635db13edf4fc65c06a6e9f9e55fc2f92596db928d169c0bb031e88ef3", size = 100417, upload-time = "2024-06-18T20:16:22.484Z" },
@@ -12741,33 +12633,12 @@ fn duplicate_torch_and_sympy_because_of_wrong_inferences() -> Result<()> {
         version = "3.2.1"
         source = { registry = "https://pypi.org/simple" }
         resolution-markers = [
-            "python_full_version >= '3.12' and sys_platform == 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform == 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform == 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and sys_platform == 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform == 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform == 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and sys_platform == 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra == 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra == 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform == 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra == 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra == 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform == 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra == 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra == 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and sys_platform == 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform == 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform == 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
+            "python_full_version >= '3.12' and sys_platform == 'win32'",
+            "python_full_version >= '3.12' and sys_platform != 'win32'",
+            "python_full_version == '3.11.*' and sys_platform == 'win32'",
+            "python_full_version == '3.11.*' and sys_platform != 'win32'",
+            "python_full_version < '3.11' and sys_platform == 'win32'",
+            "python_full_version < '3.11' and sys_platform != 'win32'",
         ]
         sdist = { url = "https://files.pythonhosted.org/packages/8b/1a/3544f4f299a47911c2ab3710f534e52fea62a633c96806995da5d25be4b2/pyparsing-3.2.1.tar.gz", hash = "sha256:61980854fd66de3a90028d679a954d5f2623e83144b5afe5ee86f43d762e5f0a", size = 1067694, upload-time = "2024-12-31T20:59:46.157Z" }
         wheels = [
@@ -13263,27 +13134,12 @@ fn duplicate_torch_and_sympy_because_of_wrong_inferences() -> Result<()> {
         version = "2.5.1"
         source = { registry = "https://pypi.org/simple" }
         resolution-markers = [
-            "python_full_version >= '3.12' and sys_platform == 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform == 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform == 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and sys_platform == 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform == 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform == 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and sys_platform == 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform == 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform == 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
+            "python_full_version >= '3.12' and sys_platform == 'win32'",
+            "python_full_version >= '3.12' and sys_platform != 'win32'",
+            "python_full_version == '3.11.*' and sys_platform == 'win32'",
+            "python_full_version == '3.11.*' and sys_platform != 'win32'",
+            "python_full_version < '3.11' and sys_platform == 'win32'",
+            "python_full_version < '3.11' and sys_platform != 'win32'",
         ]
         dependencies = [
             { name = "filelock", marker = "extra == 'extra-4-test-all' or extra == 'extra-4-test-chgnet' or (extra != 'extra-4-test-alignn' and extra != 'extra-4-test-m3gnet')" },
@@ -13434,18 +13290,9 @@ fn duplicate_torch_and_sympy_because_of_wrong_inferences() -> Result<()> {
         version = "3.1.0"
         source = { registry = "https://pypi.org/simple" }
         resolution-markers = [
-            "python_full_version >= '3.12' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra == 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and sys_platform != 'win32' and extra != 'extra-4-test-alignn' and extra == 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version >= '3.12' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version == '3.11.*' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
-            "python_full_version < '3.11' and extra != 'extra-4-test-alignn' and extra != 'extra-4-test-all' and extra != 'extra-4-test-chgnet' and extra != 'extra-4-test-m3gnet'",
+            "python_full_version >= '3.12' and sys_platform != 'win32'",
+            "python_full_version == '3.11.*' and sys_platform != 'win32'",
+            "python_full_version < '3.11' and sys_platform != 'win32'",
         ]
         dependencies = [
             { name = "filelock", marker = "extra == 'extra-4-test-all' or extra == 'extra-4-test-chgnet' or (extra != 'extra-4-test-alignn' and extra != 'extra-4-test-m3gnet')" },
@@ -13596,7 +13443,7 @@ fn duplicate_torch_and_sympy_because_of_wrong_inferences() -> Result<()> {
 
 #[test]
 fn overlapping_resolution_markers() -> Result<()> {
-    let context = TestContext::new("3.10").with_exclude_newer("2025-01-30T00:00Z");
+    let context = uv_test::test_context!("3.10").with_exclude_newer("2025-01-30T00:00Z");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -14273,7 +14120,7 @@ fn overlapping_resolution_markers() -> Result<()> {
 /// Ref: <https://github.com/astral-sh/uv/issues/9735>
 #[test]
 fn avoids_exponential_lock_file_growth() -> Result<()> {
-    let context = TestContext::new("3.12").with_exclude_newer("2025-02-06T00:00Z");
+    let context = uv_test::test_context!("3.12").with_exclude_newer("2025-02-06T00:00Z");
 
     let pyproject = r#"
         [project]
@@ -15155,7 +15002,7 @@ fn avoids_exponential_lock_file_growth() -> Result<()> {
 /// Ref: <https://github.com/astral-sh/uv/issues/14805>
 #[test]
 fn do_not_simplify_if_not_all_conflict_extras_satisfy_the_marker_by_themselves() -> Result<()> {
-    let context = TestContext::new("3.12").with_exclude_newer("2025-02-06T00:00Z");
+    let context = uv_test::test_context!("3.12").with_exclude_newer("2025-02-06T00:00Z");
 
     let pyproject = r#"
         [project]
@@ -15307,7 +15154,7 @@ fn do_not_simplify_if_not_all_conflict_extras_satisfy_the_marker_by_themselves()
 /// silently ignored.
 #[test]
 fn conflict_item_unknown_field() -> Result<()> {
-    let context = TestContext::new("3.12");
+    let context = uv_test::test_context!("3.12");
 
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(
@@ -15343,6 +15190,753 @@ fn conflict_item_unknown_field() -> Result<()> {
     10 |               { name = \"foo\", extra = \"extra1\" },
        |                 ^^^^
     unknown field `name`, expected one of `package`, `extra`, `group`
+    ");
+
+    Ok(())
+}
+
+/// Test that many pairwise conflicts sharing a common extra don't cause
+/// exponential fork growth. This mimics the pattern seen in projects like
+/// sktime, where CI pin extras (e.g., `dependencies_lowest`) conflict with
+/// many independent task extras (e.g., `forecasting`, `classification`).
+///
+/// Without optimization, N pairwise conflicts involving the same extra would
+/// create O(2^N) forks. With the optimization, this stays small.
+#[test]
+fn many_pairwise_conflicts_shared_extra() -> Result<()> {
+    let context = uv_test::test_context!("3.12");
+
+    // A project with:
+    // - `pinned`: pins sortedcontainers==2.3.0 (old version for CI testing)
+    // - `a` through `e`: each uses sortedcontainers>=2.4
+    // - Each task extra conflicts with `pinned` pairwise
+    // - The task extras do NOT conflict with each other
+    let pyproject_toml = context.temp_dir.child("pyproject.toml");
+    pyproject_toml.write_str(
+        r#"
+        [project]
+        name = "project"
+        version = "0.1.0"
+        requires-python = ">=3.12"
+        dependencies = []
+
+        [project.optional-dependencies]
+        pinned = ["sortedcontainers==2.3.0"]
+        a = ["sortedcontainers>=2.4"]
+        b = ["sortedcontainers>=2.4"]
+        c = ["sortedcontainers>=2.4"]
+        d = ["sortedcontainers>=2.4"]
+        e = ["sortedcontainers>=2.4"]
+
+        [tool.uv]
+        conflicts = [
+            [
+              { extra = "pinned" },
+              { extra = "a" },
+            ],
+            [
+              { extra = "pinned" },
+              { extra = "b" },
+            ],
+            [
+              { extra = "pinned" },
+              { extra = "c" },
+            ],
+            [
+              { extra = "pinned" },
+              { extra = "d" },
+            ],
+            [
+              { extra = "pinned" },
+              { extra = "e" },
+            ],
+        ]
+        "#,
+    )?;
+
+    // This should resolve quickly — not hang due to exponential forking.
+    uv_snapshot!(context.filters(), context.lock(), @"
+    success: true
+    exit_code: 0
+    ----- stdout -----
+
+    ----- stderr -----
+    Resolved 3 packages in [TIME]
+    ");
+
+    let lock = context.read("uv.lock");
+
+    // The lock file should have exactly 2 versions of sortedcontainers:
+    // 2.3.0 for pinned and 2.4.0 for the task extras.
+    insta::with_settings!({
+        filters => context.filters(),
+    }, {
+        assert_snapshot!(
+            lock, @r#"
+        version = 1
+        revision = 3
+        requires-python = ">=3.12"
+        conflicts = [[
+            { package = "project", extra = "a" },
+            { package = "project", extra = "pinned" },
+        ], [
+            { package = "project", extra = "b" },
+            { package = "project", extra = "pinned" },
+        ], [
+            { package = "project", extra = "c" },
+            { package = "project", extra = "pinned" },
+        ], [
+            { package = "project", extra = "d" },
+            { package = "project", extra = "pinned" },
+        ], [
+            { package = "project", extra = "e" },
+            { package = "project", extra = "pinned" },
+        ]]
+
+        [options]
+        exclude-newer = "2024-03-25T00:00:00Z"
+
+        [[package]]
+        name = "project"
+        version = "0.1.0"
+        source = { virtual = "." }
+
+        [package.optional-dependencies]
+        a = [
+            { name = "sortedcontainers", version = "2.4.0", source = { registry = "https://pypi.org/simple" } },
+        ]
+        b = [
+            { name = "sortedcontainers", version = "2.4.0", source = { registry = "https://pypi.org/simple" } },
+        ]
+        c = [
+            { name = "sortedcontainers", version = "2.4.0", source = { registry = "https://pypi.org/simple" } },
+        ]
+        d = [
+            { name = "sortedcontainers", version = "2.4.0", source = { registry = "https://pypi.org/simple" } },
+        ]
+        e = [
+            { name = "sortedcontainers", version = "2.4.0", source = { registry = "https://pypi.org/simple" } },
+        ]
+        pinned = [
+            { name = "sortedcontainers", version = "2.3.0", source = { registry = "https://pypi.org/simple" } },
+        ]
+
+        [package.metadata]
+        requires-dist = [
+            { name = "sortedcontainers", marker = "extra == 'a'", specifier = ">=2.4" },
+            { name = "sortedcontainers", marker = "extra == 'b'", specifier = ">=2.4" },
+            { name = "sortedcontainers", marker = "extra == 'c'", specifier = ">=2.4" },
+            { name = "sortedcontainers", marker = "extra == 'd'", specifier = ">=2.4" },
+            { name = "sortedcontainers", marker = "extra == 'e'", specifier = ">=2.4" },
+            { name = "sortedcontainers", marker = "extra == 'pinned'", specifier = "==2.3.0" },
+        ]
+        provides-extras = ["pinned", "a", "b", "c", "d", "e"]
+
+        [[package]]
+        name = "sortedcontainers"
+        version = "2.3.0"
+        source = { registry = "https://pypi.org/simple" }
+        sdist = { url = "https://files.pythonhosted.org/packages/14/10/6a9481890bae97da9edd6e737c9c3dec6aea3fc2fa53b0934037b35c89ea/sortedcontainers-2.3.0.tar.gz", hash = "sha256:59cc937650cf60d677c16775597c89a960658a09cf7c1a668f86e1e4464b10a1", size = 30509, upload-time = "2020-11-09T00:03:52.258Z" }
+        wheels = [
+            { url = "https://files.pythonhosted.org/packages/20/4d/a7046ae1a1a4cc4e9bbed194c387086f06b25038be596543d026946330c9/sortedcontainers-2.3.0-py2.py3-none-any.whl", hash = "sha256:37257a32add0a3ee490bb170b599e93095eed89a55da91fa9f48753ea12fd73f", size = 29479, upload-time = "2020-11-09T00:03:50.723Z" },
+        ]
+
+        [[package]]
+        name = "sortedcontainers"
+        version = "2.4.0"
+        source = { registry = "https://pypi.org/simple" }
+        sdist = { url = "https://files.pythonhosted.org/packages/e8/c4/ba2f8066cceb6f23394729afe52f3bf7adec04bf9ed2c820b39e19299111/sortedcontainers-2.4.0.tar.gz", hash = "sha256:25caa5a06cc30b6b83d11423433f65d1f9d76c4c6a0c90e3379eaa43b9bfdb88", size = 30594, upload-time = "2021-05-16T22:03:42.897Z" }
+        wheels = [
+            { url = "https://files.pythonhosted.org/packages/32/46/9cb0e58b2deb7f82b84065f37f3bffeb12413f947f9388e4cac22c4621ce/sortedcontainers-2.4.0-py2.py3-none-any.whl", hash = "sha256:a163dcaede0f1c021485e957a39245190e74249897e2ae4b2aa38595db237ee0", size = 29575, upload-time = "2021-05-16T22:03:41.177Z" },
+        ]
+        "#
+        );
+    });
+
+    Ok(())
+}
+
+/// Test that a project-level conflict (i.e., `{ package = "pkg-a" }` without
+/// extra or group) properly excludes the package's extras from the conflicting
+/// fork.
+///
+/// Regression test for: <https://github.com/astral-sh/uv/issues/18015>
+#[test]
+fn project_level_conflict_with_extra() -> Result<()> {
+    let context = uv_test::test_context!("3.12");
+
+    let root_pyproject_toml = context.temp_dir.child("pyproject.toml");
+    root_pyproject_toml.write_str(
+        r#"
+        [project]
+        name = "workspace-root"
+        version = "0.1.0"
+        requires-python = ">=3.12"
+
+        [tool.uv.workspace]
+        members = ["pkg-a", "pkg-b"]
+
+        [tool.uv]
+        conflicts = [
+            [
+                { package = "pkg-a" },
+                { package = "pkg-b", extra = "extra1" },
+            ],
+        ]
+        "#,
+    )?;
+
+    let pkg_a_pyproject_toml = context.temp_dir.child("pkg-a").child("pyproject.toml");
+    pkg_a_pyproject_toml.write_str(
+        r#"
+        [project]
+        name = "pkg-a"
+        version = "0.1.0"
+        requires-python = ">=3.12"
+        dependencies = ["sortedcontainers==2.3.0"]
+
+        [build-system]
+        requires = ["hatchling"]
+        build-backend = "hatchling.build"
+        "#,
+    )?;
+
+    let pkg_b_pyproject_toml = context.temp_dir.child("pkg-b").child("pyproject.toml");
+    pkg_b_pyproject_toml.write_str(
+        r#"
+        [project]
+        name = "pkg-b"
+        version = "0.1.0"
+        requires-python = ">=3.12"
+        dependencies = []
+
+        [project.optional-dependencies]
+        extra1 = ["sortedcontainers==2.4.0"]
+
+        [build-system]
+        requires = ["hatchling"]
+        build-backend = "hatchling.build"
+        "#,
+    )?;
+
+    // Resolution should succeed: pkg-a (with sortedcontainers==2.3.0) and
+    // pkg-b[extra1] (with sortedcontainers==2.4.0) are in separate forks
+    // because of the declared project-level conflict.
+    uv_snapshot!(context.filters(), context.lock(), @"
+    success: true
+    exit_code: 0
+    ----- stdout -----
+
+    ----- stderr -----
+    warning: Declaring conflicts for packages (`package = ...`) is experimental and may change without warning. Pass `--preview-features package-conflicts` to disable this warning.
+    Resolved 5 packages in [TIME]
+    ");
+
+    let lock = context.read("uv.lock");
+
+    insta::with_settings!({
+        filters => context.filters(),
+    }, {
+        assert_snapshot!(
+            lock,
+            @r#"
+        version = 1
+        revision = 3
+        requires-python = ">=3.12"
+        conflicts = [[
+            { package = "pkg-a" },
+            { package = "pkg-b", extra = "extra1" },
+        ]]
+
+        [options]
+        exclude-newer = "2024-03-25T00:00:00Z"
+
+        [manifest]
+        members = [
+            "pkg-a",
+            "pkg-b",
+            "workspace-root",
+        ]
+
+        [[package]]
+        name = "pkg-a"
+        version = "0.1.0"
+        source = { editable = "pkg-a" }
+        dependencies = [
+            { name = "sortedcontainers", version = "2.3.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'project-5-pkg-a'" },
+        ]
+
+        [package.metadata]
+        requires-dist = [{ name = "sortedcontainers", specifier = "==2.3.0" }]
+
+        [[package]]
+        name = "pkg-b"
+        version = "0.1.0"
+        source = { editable = "pkg-b" }
+
+        [package.optional-dependencies]
+        extra1 = [
+            { name = "sortedcontainers", version = "2.4.0", source = { registry = "https://pypi.org/simple" } },
+        ]
+
+        [package.metadata]
+        requires-dist = [{ name = "sortedcontainers", marker = "extra == 'extra1'", specifier = "==2.4.0" }]
+        provides-extras = ["extra1"]
+
+        [[package]]
+        name = "sortedcontainers"
+        version = "2.3.0"
+        source = { registry = "https://pypi.org/simple" }
+        sdist = { url = "https://files.pythonhosted.org/packages/14/10/6a9481890bae97da9edd6e737c9c3dec6aea3fc2fa53b0934037b35c89ea/sortedcontainers-2.3.0.tar.gz", hash = "sha256:59cc937650cf60d677c16775597c89a960658a09cf7c1a668f86e1e4464b10a1", size = 30509, upload-time = "2020-11-09T00:03:52.258Z" }
+        wheels = [
+            { url = "https://files.pythonhosted.org/packages/20/4d/a7046ae1a1a4cc4e9bbed194c387086f06b25038be596543d026946330c9/sortedcontainers-2.3.0-py2.py3-none-any.whl", hash = "sha256:37257a32add0a3ee490bb170b599e93095eed89a55da91fa9f48753ea12fd73f", size = 29479, upload-time = "2020-11-09T00:03:50.723Z" },
+        ]
+
+        [[package]]
+        name = "sortedcontainers"
+        version = "2.4.0"
+        source = { registry = "https://pypi.org/simple" }
+        sdist = { url = "https://files.pythonhosted.org/packages/e8/c4/ba2f8066cceb6f23394729afe52f3bf7adec04bf9ed2c820b39e19299111/sortedcontainers-2.4.0.tar.gz", hash = "sha256:25caa5a06cc30b6b83d11423433f65d1f9d76c4c6a0c90e3379eaa43b9bfdb88", size = 30594, upload-time = "2021-05-16T22:03:42.897Z" }
+        wheels = [
+            { url = "https://files.pythonhosted.org/packages/32/46/9cb0e58b2deb7f82b84065f37f3bffeb12413f947f9388e4cac22c4621ce/sortedcontainers-2.4.0-py2.py3-none-any.whl", hash = "sha256:a163dcaede0f1c021485e957a39245190e74249897e2ae4b2aa38595db237ee0", size = 29575, upload-time = "2021-05-16T22:03:41.177Z" },
+        ]
+
+        [[package]]
+        name = "workspace-root"
+        version = "0.1.0"
+        source = { virtual = "." }
+        "#
+        );
+    });
+
+    // Re-run with `--locked`.
+    uv_snapshot!(context.filters(), context.lock().arg("--locked"), @"
+    success: true
+    exit_code: 0
+    ----- stdout -----
+
+    ----- stderr -----
+    warning: Declaring conflicts for packages (`package = ...`) is experimental and may change without warning. Pass `--preview-features package-conflicts` to disable this warning.
+    Resolved 5 packages in [TIME]
+    ");
+
+    Ok(())
+}
+
+/// Test that a project-level conflict works when the conflicting package has
+/// extras that are also declared in additional conflict sets. This mirrors the
+/// exact scenario from the issue: pkg-a depends on datasets<4, pkg-b[unsafe]
+/// depends on datasets>4, and pkg-a depends on pkg-b[safe].
+///
+/// Regression test for: <https://github.com/astral-sh/uv/issues/18015>
+#[test]
+fn project_level_conflict_with_extras_and_cross_dependency() -> Result<()> {
+    let context = uv_test::test_context!("3.12");
+
+    let root_pyproject_toml = context.temp_dir.child("pyproject.toml");
+    root_pyproject_toml.write_str(
+        r#"
+        [project]
+        name = "workspace-root"
+        version = "0.1.0"
+        requires-python = ">=3.12"
+
+        [tool.uv.workspace]
+        members = ["pkg-a", "pkg-b"]
+
+        [tool.uv]
+        conflicts = [
+            [
+                { package = "pkg-a" },
+                { package = "pkg-b", extra = "extra1" },
+            ],
+        ]
+        "#,
+    )?;
+
+    let pkg_a_pyproject_toml = context.temp_dir.child("pkg-a").child("pyproject.toml");
+    pkg_a_pyproject_toml.write_str(
+        r#"
+        [project]
+        name = "pkg-a"
+        version = "0.1.0"
+        requires-python = ">=3.12"
+        dependencies = [
+            "sortedcontainers==2.3.0",
+            "pkg-b[safe]",
+        ]
+
+        [project.optional-dependencies]
+        all = [
+            "pkg-a[foo]",
+            "pkg-a[bar]",
+        ]
+        foo = ["idna==3.4"]
+        bar = ["sniffio==1.3.0"]
+
+        [tool.uv.sources]
+        pkg-b = { workspace = true }
+
+        [build-system]
+        requires = ["hatchling"]
+        build-backend = "hatchling.build"
+        "#,
+    )?;
+
+    let pkg_b_pyproject_toml = context.temp_dir.child("pkg-b").child("pyproject.toml");
+    pkg_b_pyproject_toml.write_str(
+        r#"
+        [project]
+        name = "pkg-b"
+        version = "0.1.0"
+        requires-python = ">=3.12"
+        dependencies = []
+
+        [project.optional-dependencies]
+        safe = ["sortedcontainers"]
+        extra1 = ["sortedcontainers==2.4.0"]
+
+        [build-system]
+        requires = ["hatchling"]
+        build-backend = "hatchling.build"
+        "#,
+    )?;
+
+    // Resolution should succeed. pkg-a depends on sortedcontainers==2.3.0 and
+    // pkg-b[extra1] depends on sortedcontainers==2.4.0. The project-level
+    // conflict between pkg-a and pkg-b[extra1] should properly separate these
+    // into different forks, including pkg-a's extras (all, foo, bar).
+    uv_snapshot!(context.filters(), context.lock(), @"
+    success: true
+    exit_code: 0
+    ----- stdout -----
+
+    ----- stderr -----
+    warning: Declaring conflicts for packages (`package = ...`) is experimental and may change without warning. Pass `--preview-features package-conflicts` to disable this warning.
+    Resolved 7 packages in [TIME]
+    ");
+
+    let lock = context.read("uv.lock");
+
+    insta::with_settings!({
+        filters => context.filters(),
+    }, {
+        assert_snapshot!(
+            lock,
+            @r#"
+        version = 1
+        revision = 3
+        requires-python = ">=3.12"
+        conflicts = [[
+            { package = "pkg-a" },
+            { package = "pkg-b", extra = "extra1" },
+        ]]
+
+        [options]
+        exclude-newer = "2024-03-25T00:00:00Z"
+
+        [manifest]
+        members = [
+            "pkg-a",
+            "pkg-b",
+            "workspace-root",
+        ]
+
+        [[package]]
+        name = "idna"
+        version = "3.4"
+        source = { registry = "https://pypi.org/simple" }
+        sdist = { url = "https://files.pythonhosted.org/packages/8b/e1/43beb3d38dba6cb420cefa297822eac205a277ab43e5ba5d5c46faf96438/idna-3.4.tar.gz", hash = "sha256:814f528e8dead7d329833b91c5faa87d60bf71824cd12a7530b5526063d02cb4", size = 183077, upload-time = "2022-09-14T00:24:27.719Z" }
+        wheels = [
+            { url = "https://files.pythonhosted.org/packages/fc/34/3030de6f1370931b9dbb4dad48f6ab1015ab1d32447850b9fc94e60097be/idna-3.4-py3-none-any.whl", hash = "sha256:90b77e79eaa3eba6de819a0c442c0b4ceefc341a7a2ab77d7562bf49f425c5c2", size = 61538, upload-time = "2022-09-14T00:24:23.22Z" },
+        ]
+
+        [[package]]
+        name = "pkg-a"
+        version = "0.1.0"
+        source = { editable = "pkg-a" }
+        dependencies = [
+            { name = "pkg-b", extra = ["safe"], marker = "extra == 'project-5-pkg-a'" },
+            { name = "sortedcontainers", version = "2.3.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'project-5-pkg-a'" },
+        ]
+
+        [package.optional-dependencies]
+        all = [
+            { name = "idna", marker = "extra == 'project-5-pkg-a'" },
+            { name = "sniffio", marker = "extra == 'project-5-pkg-a'" },
+        ]
+        bar = [
+            { name = "sniffio", marker = "extra == 'project-5-pkg-a'" },
+        ]
+        foo = [
+            { name = "idna", marker = "extra == 'project-5-pkg-a'" },
+        ]
+
+        [package.metadata]
+        requires-dist = [
+            { name = "idna", marker = "extra == 'foo'", specifier = "==3.4" },
+            { name = "pkg-a", extras = ["bar"], marker = "extra == 'all'" },
+            { name = "pkg-a", extras = ["foo"], marker = "extra == 'all'" },
+            { name = "pkg-b", extras = ["safe"], editable = "pkg-b" },
+            { name = "sniffio", marker = "extra == 'bar'", specifier = "==1.3.0" },
+            { name = "sortedcontainers", specifier = "==2.3.0" },
+        ]
+        provides-extras = ["all", "foo", "bar"]
+
+        [[package]]
+        name = "pkg-b"
+        version = "0.1.0"
+        source = { editable = "pkg-b" }
+
+        [package.optional-dependencies]
+        extra1 = [
+            { name = "sortedcontainers", version = "2.4.0", source = { registry = "https://pypi.org/simple" } },
+        ]
+        safe = [
+            { name = "sortedcontainers", version = "2.3.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'project-5-pkg-a'" },
+            { name = "sortedcontainers", version = "2.4.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-5-pkg-b-extra1' or extra != 'project-5-pkg-a'" },
+        ]
+
+        [package.metadata]
+        requires-dist = [
+            { name = "sortedcontainers", marker = "extra == 'extra1'", specifier = "==2.4.0" },
+            { name = "sortedcontainers", marker = "extra == 'safe'" },
+        ]
+        provides-extras = ["safe", "extra1"]
+
+        [[package]]
+        name = "sniffio"
+        version = "1.3.0"
+        source = { registry = "https://pypi.org/simple" }
+        sdist = { url = "https://files.pythonhosted.org/packages/cd/50/d49c388cae4ec10e8109b1b833fd265511840706808576df3ada99ecb0ac/sniffio-1.3.0.tar.gz", hash = "sha256:e60305c5e5d314f5389259b7f22aaa33d8f7dee49763119234af3755c55b9101", size = 17103, upload-time = "2022-09-01T12:31:36.968Z" }
+        wheels = [
+            { url = "https://files.pythonhosted.org/packages/c3/a0/5dba8ed157b0136607c7f2151db695885606968d1fae123dc3391e0cfdbf/sniffio-1.3.0-py3-none-any.whl", hash = "sha256:eecefdce1e5bbfb7ad2eeaabf7c1eeb404d7757c379bd1f7e5cce9d8bf425384", size = 10165, upload-time = "2022-09-01T12:31:34.186Z" },
+        ]
+
+        [[package]]
+        name = "sortedcontainers"
+        version = "2.3.0"
+        source = { registry = "https://pypi.org/simple" }
+        sdist = { url = "https://files.pythonhosted.org/packages/14/10/6a9481890bae97da9edd6e737c9c3dec6aea3fc2fa53b0934037b35c89ea/sortedcontainers-2.3.0.tar.gz", hash = "sha256:59cc937650cf60d677c16775597c89a960658a09cf7c1a668f86e1e4464b10a1", size = 30509, upload-time = "2020-11-09T00:03:52.258Z" }
+        wheels = [
+            { url = "https://files.pythonhosted.org/packages/20/4d/a7046ae1a1a4cc4e9bbed194c387086f06b25038be596543d026946330c9/sortedcontainers-2.3.0-py2.py3-none-any.whl", hash = "sha256:37257a32add0a3ee490bb170b599e93095eed89a55da91fa9f48753ea12fd73f", size = 29479, upload-time = "2020-11-09T00:03:50.723Z" },
+        ]
+
+        [[package]]
+        name = "sortedcontainers"
+        version = "2.4.0"
+        source = { registry = "https://pypi.org/simple" }
+        sdist = { url = "https://files.pythonhosted.org/packages/e8/c4/ba2f8066cceb6f23394729afe52f3bf7adec04bf9ed2c820b39e19299111/sortedcontainers-2.4.0.tar.gz", hash = "sha256:25caa5a06cc30b6b83d11423433f65d1f9d76c4c6a0c90e3379eaa43b9bfdb88", size = 30594, upload-time = "2021-05-16T22:03:42.897Z" }
+        wheels = [
+            { url = "https://files.pythonhosted.org/packages/32/46/9cb0e58b2deb7f82b84065f37f3bffeb12413f947f9388e4cac22c4621ce/sortedcontainers-2.4.0-py2.py3-none-any.whl", hash = "sha256:a163dcaede0f1c021485e957a39245190e74249897e2ae4b2aa38595db237ee0", size = 29575, upload-time = "2021-05-16T22:03:41.177Z" },
+        ]
+
+        [[package]]
+        name = "workspace-root"
+        version = "0.1.0"
+        source = { virtual = "." }
+        "#
+        );
+    });
+
+    // Re-run with `--locked`.
+    uv_snapshot!(context.filters(), context.lock().arg("--locked"), @"
+    success: true
+    exit_code: 0
+    ----- stdout -----
+
+    ----- stderr -----
+    warning: Declaring conflicts for packages (`package = ...`) is experimental and may change without warning. Pass `--preview-features package-conflicts` to disable this warning.
+    Resolved 7 packages in [TIME]
+    ");
+
+    Ok(())
+}
+
+/// Test that a project-level conflict correctly handles groups on the
+/// excluded package. Groups do NOT depend on the base package (unlike
+/// extras), so a group on pkg-a should remain active even when pkg-a
+/// itself is excluded by a project-level conflict.
+///
+/// Regression test for: <https://github.com/astral-sh/uv/issues/18015>
+#[test]
+fn project_level_conflict_with_group() -> Result<()> {
+    let context = uv_test::test_context!("3.12");
+
+    let root_pyproject_toml = context.temp_dir.child("pyproject.toml");
+    root_pyproject_toml.write_str(
+        r#"
+        [project]
+        name = "workspace-root"
+        version = "0.1.0"
+        requires-python = ">=3.12"
+
+        [tool.uv.workspace]
+        members = ["pkg-a", "pkg-b"]
+
+        [tool.uv]
+        conflicts = [
+            [
+                { package = "pkg-a" },
+                { package = "pkg-b", extra = "extra1" },
+            ],
+        ]
+        "#,
+    )?;
+
+    let pkg_a_pyproject_toml = context.temp_dir.child("pkg-a").child("pyproject.toml");
+    pkg_a_pyproject_toml.write_str(
+        r#"
+        [project]
+        name = "pkg-a"
+        version = "0.1.0"
+        requires-python = ">=3.12"
+        dependencies = ["sortedcontainers==2.3.0"]
+
+        [dependency-groups]
+        dev = ["sniffio==1.3.0"]
+
+        [build-system]
+        requires = ["hatchling"]
+        build-backend = "hatchling.build"
+        "#,
+    )?;
+
+    let pkg_b_pyproject_toml = context.temp_dir.child("pkg-b").child("pyproject.toml");
+    pkg_b_pyproject_toml.write_str(
+        r#"
+        [project]
+        name = "pkg-b"
+        version = "0.1.0"
+        requires-python = ">=3.12"
+        dependencies = []
+
+        [project.optional-dependencies]
+        extra1 = ["sortedcontainers==2.4.0"]
+
+        [build-system]
+        requires = ["hatchling"]
+        build-backend = "hatchling.build"
+        "#,
+    )?;
+
+    // Resolution should succeed. The project-level conflict between pkg-a
+    // and pkg-b[extra1] properly forks. The dev group on pkg-a should NOT
+    // be excluded by the project-level conflict since groups don't depend
+    // on the base package.
+    uv_snapshot!(context.filters(), context.lock(), @"
+    success: true
+    exit_code: 0
+    ----- stdout -----
+
+    ----- stderr -----
+    warning: Declaring conflicts for packages (`package = ...`) is experimental and may change without warning. Pass `--preview-features package-conflicts` to disable this warning.
+    Resolved 6 packages in [TIME]
+    ");
+
+    let lock = context.read("uv.lock");
+
+    insta::with_settings!({
+        filters => context.filters(),
+    }, {
+        assert_snapshot!(
+            lock,
+            @r#"
+        version = 1
+        revision = 3
+        requires-python = ">=3.12"
+        conflicts = [[
+            { package = "pkg-a" },
+            { package = "pkg-b", extra = "extra1" },
+        ]]
+
+        [options]
+        exclude-newer = "2024-03-25T00:00:00Z"
+
+        [manifest]
+        members = [
+            "pkg-a",
+            "pkg-b",
+            "workspace-root",
+        ]
+
+        [[package]]
+        name = "pkg-a"
+        version = "0.1.0"
+        source = { editable = "pkg-a" }
+        dependencies = [
+            { name = "sortedcontainers", version = "2.3.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'project-5-pkg-a'" },
+        ]
+
+        [package.dev-dependencies]
+        dev = [
+            { name = "sniffio" },
+        ]
+
+        [package.metadata]
+        requires-dist = [{ name = "sortedcontainers", specifier = "==2.3.0" }]
+
+        [package.metadata.requires-dev]
+        dev = [{ name = "sniffio", specifier = "==1.3.0" }]
+
+        [[package]]
+        name = "pkg-b"
+        version = "0.1.0"
+        source = { editable = "pkg-b" }
+
+        [package.optional-dependencies]
+        extra1 = [
+            { name = "sortedcontainers", version = "2.4.0", source = { registry = "https://pypi.org/simple" } },
+        ]
+
+        [package.metadata]
+        requires-dist = [{ name = "sortedcontainers", marker = "extra == 'extra1'", specifier = "==2.4.0" }]
+        provides-extras = ["extra1"]
+
+        [[package]]
+        name = "sniffio"
+        version = "1.3.0"
+        source = { registry = "https://pypi.org/simple" }
+        sdist = { url = "https://files.pythonhosted.org/packages/cd/50/d49c388cae4ec10e8109b1b833fd265511840706808576df3ada99ecb0ac/sniffio-1.3.0.tar.gz", hash = "sha256:e60305c5e5d314f5389259b7f22aaa33d8f7dee49763119234af3755c55b9101", size = 17103, upload-time = "2022-09-01T12:31:36.968Z" }
+        wheels = [
+            { url = "https://files.pythonhosted.org/packages/c3/a0/5dba8ed157b0136607c7f2151db695885606968d1fae123dc3391e0cfdbf/sniffio-1.3.0-py3-none-any.whl", hash = "sha256:eecefdce1e5bbfb7ad2eeaabf7c1eeb404d7757c379bd1f7e5cce9d8bf425384", size = 10165, upload-time = "2022-09-01T12:31:34.186Z" },
+        ]
+
+        [[package]]
+        name = "sortedcontainers"
+        version = "2.3.0"
+        source = { registry = "https://pypi.org/simple" }
+        sdist = { url = "https://files.pythonhosted.org/packages/14/10/6a9481890bae97da9edd6e737c9c3dec6aea3fc2fa53b0934037b35c89ea/sortedcontainers-2.3.0.tar.gz", hash = "sha256:59cc937650cf60d677c16775597c89a960658a09cf7c1a668f86e1e4464b10a1", size = 30509, upload-time = "2020-11-09T00:03:52.258Z" }
+        wheels = [
+            { url = "https://files.pythonhosted.org/packages/20/4d/a7046ae1a1a4cc4e9bbed194c387086f06b25038be596543d026946330c9/sortedcontainers-2.3.0-py2.py3-none-any.whl", hash = "sha256:37257a32add0a3ee490bb170b599e93095eed89a55da91fa9f48753ea12fd73f", size = 29479, upload-time = "2020-11-09T00:03:50.723Z" },
+        ]
+
+        [[package]]
+        name = "sortedcontainers"
+        version = "2.4.0"
+        source = { registry = "https://pypi.org/simple" }
+        sdist = { url = "https://files.pythonhosted.org/packages/e8/c4/ba2f8066cceb6f23394729afe52f3bf7adec04bf9ed2c820b39e19299111/sortedcontainers-2.4.0.tar.gz", hash = "sha256:25caa5a06cc30b6b83d11423433f65d1f9d76c4c6a0c90e3379eaa43b9bfdb88", size = 30594, upload-time = "2021-05-16T22:03:42.897Z" }
+        wheels = [
+            { url = "https://files.pythonhosted.org/packages/32/46/9cb0e58b2deb7f82b84065f37f3bffeb12413f947f9388e4cac22c4621ce/sortedcontainers-2.4.0-py2.py3-none-any.whl", hash = "sha256:a163dcaede0f1c021485e957a39245190e74249897e2ae4b2aa38595db237ee0", size = 29575, upload-time = "2021-05-16T22:03:41.177Z" },
+        ]
+
+        [[package]]
+        name = "workspace-root"
+        version = "0.1.0"
+        source = { virtual = "." }
+        "#
+        );
+    });
+
+    // Re-run with `--locked`.
+    uv_snapshot!(context.filters(), context.lock().arg("--locked"), @"
+    success: true
+    exit_code: 0
+    ----- stdout -----
+
+    ----- stderr -----
+    warning: Declaring conflicts for packages (`package = ...`) is experimental and may change without warning. Pass `--preview-features package-conflicts` to disable this warning.
+    Resolved 6 packages in [TIME]
     ");
 
     Ok(())

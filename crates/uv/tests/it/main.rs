@@ -1,8 +1,6 @@
 //! this is the single integration test, as documented by matklad
 //! in <https://matklad.github.io/2021/02/27/delete-cargo-integration-tests.html>
 
-pub(crate) mod common;
-
 mod auth;
 
 mod branching_urls;
@@ -151,6 +149,7 @@ mod version;
 mod workflow;
 
 mod extract;
+mod pypi_proxy;
 mod workspace;
 mod workspace_dir;
 mod workspace_list;

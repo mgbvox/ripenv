@@ -278,7 +278,7 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
           python-version: "${{ env.PYTHON_VERSION }}"
 
@@ -313,7 +313,7 @@ jobs:
           packages-dir: "astral-test-pypa-gh-action/dist"
 
       - name: "Request GitLab OIDC tokens for impersonation"
-        uses: digital-blueprint/gitlab-pipeline-trigger-action@20e77989b24af658ba138a0aa5291bdc657f1505 # v1.3.0
+        uses: digital-blueprint/gitlab-pipeline-trigger-action@c59b56e9d2688ab42c1304322ac8831a4ef6f7d2 # v1.4.0
         with:
           host: gitlab.com
           id: astral-test-publish/astral-test-gitlab-pypi-tp

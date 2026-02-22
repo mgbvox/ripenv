@@ -14,11 +14,11 @@ use predicates::prelude::predicate;
 use uv_fs::copy_dir_all;
 use uv_static::EnvVars;
 
-use crate::common::{TestContext, uv_snapshot};
+use uv_test::uv_snapshot;
 
 #[test]
 fn tool_install() {
-    let context = TestContext::new("3.12")
+    let context = uv_test::test_context!("3.12")
         .with_filtered_counts()
         .with_filtered_exe_suffix();
     let tool_dir = context.temp_dir.child("tools");
@@ -182,7 +182,7 @@ fn tool_install() {
 
 #[test]
 fn tool_install_python_from_global_version_file() {
-    let context = TestContext::new_with_versions(&["3.11", "3.12", "3.13"])
+    let context = uv_test::test_context_with_versions!(&["3.11", "3.12", "3.13"])
         .with_filtered_counts()
         .with_filtered_exe_suffix();
     let tool_dir = context.temp_dir.child("tools");
@@ -412,7 +412,7 @@ fn tool_install_python_from_global_version_file() {
 
 #[test]
 fn tool_install_with_editable() -> Result<()> {
-    let context = TestContext::new("3.12")
+    let context = uv_test::test_context!("3.12")
         .with_exclude_newer("2025-01-18T00:00:00Z")
         .with_filtered_counts()
         .with_filtered_exe_suffix();
@@ -452,7 +452,7 @@ fn tool_install_with_editable() -> Result<()> {
 
 #[test]
 fn tool_install_with_compatible_build_constraints() -> Result<()> {
-    let context = TestContext::new("3.9")
+    let context = uv_test::test_context!("3.9")
         .with_exclude_newer("2024-05-04T00:00:00Z")
         .with_filtered_counts()
         .with_filtered_exe_suffix();
@@ -522,7 +522,7 @@ fn tool_install_with_compatible_build_constraints() -> Result<()> {
 
 #[test]
 fn tool_install_with_incompatible_build_constraints() -> Result<()> {
-    let context = TestContext::new("3.9")
+    let context = uv_test::test_context!("3.9")
         .with_exclude_newer("2024-05-04T00:00:00Z")
         .with_filtered_counts()
         .with_filtered_exe_suffix();
@@ -563,15 +563,14 @@ fn tool_install_with_incompatible_build_constraints() -> Result<()> {
 #[test]
 fn tool_install_suggest_other_packages_with_executable() {
     // FastAPI 0.111 is only available from this date onwards.
-    let context = TestContext::new("3.12")
+    let context = uv_test::test_context!("3.12")
         .with_exclude_newer("2024-05-04T00:00:00Z")
         .with_filtered_exe_suffix();
     let tool_dir = context.temp_dir.child("tools");
     let bin_dir = context.temp_dir.child("bin");
-    let mut filters = context.filters();
-    filters.push(("\\+ uvloop(.+)\n ", ""));
+    let context = context.with_filter(("\\+ uvloop(.+)\n ", ""));
 
-    uv_snapshot!(filters, context.tool_install()
+    uv_snapshot!(context.filters(), context.tool_install()
         .arg("fastapi==0.111.0")
         .env(EnvVars::UV_TOOL_DIR, tool_dir.as_os_str())
         .env(EnvVars::XDG_BIN_HOME, bin_dir.as_os_str()), @"
@@ -627,7 +626,7 @@ fn tool_install_suggest_other_packages_with_executable() {
 /// Test installing a tool at a version
 #[test]
 fn tool_install_version() {
-    let context = TestContext::new("3.12").with_filtered_exe_suffix();
+    let context = uv_test::test_context!("3.12").with_filtered_exe_suffix();
     let tool_dir = context.temp_dir.child("tools");
     let bin_dir = context.temp_dir.child("bin");
 
@@ -715,7 +714,7 @@ fn tool_install_version() {
 /// Test an editable installation of a tool.
 #[test]
 fn tool_install_editable() {
-    let context = TestContext::new("3.12").with_filtered_exe_suffix();
+    let context = uv_test::test_context!("3.12").with_filtered_exe_suffix();
     let tool_dir = context.temp_dir.child("tools");
     let bin_dir = context.temp_dir.child("bin");
 
@@ -873,7 +872,7 @@ fn tool_install_editable() {
 /// Ensure that we remove any existing entrypoints upon error.
 #[test]
 fn tool_install_remove_on_empty() -> Result<()> {
-    let context = TestContext::new("3.12").with_filtered_exe_suffix();
+    let context = uv_test::test_context!("3.12").with_filtered_exe_suffix();
     let tool_dir = context.temp_dir.child("tools");
     let bin_dir = context.temp_dir.child("bin");
 
@@ -1014,7 +1013,7 @@ fn tool_install_remove_on_empty() -> Result<()> {
 /// Test an editable installation of a tool using `--from`.
 #[test]
 fn tool_install_editable_from() {
-    let context = TestContext::new("3.12").with_filtered_exe_suffix();
+    let context = uv_test::test_context!("3.12").with_filtered_exe_suffix();
     let tool_dir = context.temp_dir.child("tools");
     let bin_dir = context.temp_dir.child("bin");
 
@@ -1098,7 +1097,7 @@ fn tool_install_editable_from() {
 /// Test installing a tool with `uv tool install --from`
 #[test]
 fn tool_install_from() {
-    let context = TestContext::new("3.12").with_filtered_exe_suffix();
+    let context = uv_test::test_context!("3.12").with_filtered_exe_suffix();
     let tool_dir = context.temp_dir.child("tools");
     let bin_dir = context.temp_dir.child("bin");
 
@@ -1163,7 +1162,7 @@ fn tool_install_from() {
 /// Test installing and reinstalling an already installed tool
 #[test]
 fn tool_install_already_installed() {
-    let context = TestContext::new("3.12")
+    let context = uv_test::test_context!("3.12")
         .with_filtered_counts()
         .with_filtered_exe_suffix();
     let tool_dir = context.temp_dir.child("tools");
@@ -1348,7 +1347,7 @@ fn tool_install_already_installed() {
 /// Test installing a tool when its entry point already exists
 #[test]
 fn tool_install_force() {
-    let context = TestContext::new("3.12")
+    let context = uv_test::test_context!("3.12")
         .with_filtered_counts()
         .with_filtered_exe_suffix();
     let tool_dir = context.temp_dir.child("tools");
@@ -1620,7 +1619,7 @@ fn tool_install_force() {
 #[cfg(unix)]
 #[test]
 fn tool_install_home() {
-    let context = TestContext::new("3.12").with_filtered_exe_suffix();
+    let context = uv_test::test_context!("3.12").with_filtered_exe_suffix();
     let tool_dir = context.temp_dir.child("tools");
 
     // Install `black`
@@ -1662,7 +1661,7 @@ fn tool_install_home() {
 /// Test `uv tool install` when the bin directory is inferred from `$XDG_DATA_HOME`
 #[test]
 fn tool_install_xdg_data_home() {
-    let context = TestContext::new("3.12").with_filtered_exe_suffix();
+    let context = uv_test::test_context!("3.12").with_filtered_exe_suffix();
     let tool_dir = context.temp_dir.child("tools");
     let data_home = context.temp_dir.child("data/home");
     let bin_dir = context.temp_dir.child("data/bin");
@@ -1699,7 +1698,7 @@ fn tool_install_xdg_data_home() {
 /// Test `uv tool install` when the bin directory is set by `$XDG_BIN_HOME`
 #[test]
 fn tool_install_xdg_bin_home() {
-    let context = TestContext::new("3.12").with_filtered_exe_suffix();
+    let context = uv_test::test_context!("3.12").with_filtered_exe_suffix();
     let tool_dir = context.temp_dir.child("tools");
     let bin_dir = context.temp_dir.child("bin");
 
@@ -1734,7 +1733,7 @@ fn tool_install_xdg_bin_home() {
 /// Test `uv tool install` when the bin directory is set by `$UV_TOOL_BIN_DIR`
 #[test]
 fn tool_install_tool_bin_dir() {
-    let context = TestContext::new("3.12").with_filtered_exe_suffix();
+    let context = uv_test::test_context!("3.12").with_filtered_exe_suffix();
     let tool_dir = context.temp_dir.child("tools");
     let bin_dir = context.temp_dir.child("bin");
 
@@ -1769,7 +1768,7 @@ fn tool_install_tool_bin_dir() {
 /// Test installing a tool that lacks entrypoints
 #[test]
 fn tool_install_no_entrypoints() {
-    let context = TestContext::new("3.12").with_filtered_exe_suffix();
+    let context = uv_test::test_context!("3.12").with_filtered_exe_suffix();
     let tool_dir = context.temp_dir.child("tools");
     let bin_dir = context.temp_dir.child("bin");
 
@@ -1803,7 +1802,7 @@ fn tool_install_no_entrypoints() {
 /// Test installing a package that can't be installed.
 #[test]
 fn tool_install_uninstallable() {
-    let context = TestContext::new("3.12").with_filtered_exe_suffix();
+    let context = uv_test::test_context!("3.12").with_filtered_exe_suffix();
     let tool_dir = context.temp_dir.child("tools");
     let bin_dir = context.temp_dir.child("bin");
 
@@ -1858,7 +1857,7 @@ fn tool_install_uninstallable() {
 /// Test installing a tool with a bare URL requirement.
 #[test]
 fn tool_install_unnamed_package() {
-    let context = TestContext::new("3.12").with_filtered_exe_suffix();
+    let context = uv_test::test_context!("3.12").with_filtered_exe_suffix();
     let tool_dir = context.temp_dir.child("tools");
     let bin_dir = context.temp_dir.child("bin");
 
@@ -1947,7 +1946,7 @@ fn tool_install_unnamed_package() {
 #[test]
 #[cfg(feature = "test-git")]
 fn tool_install_git() {
-    let context = TestContext::new("3.12").with_filtered_exe_suffix();
+    let context = uv_test::test_context!("3.12").with_filtered_exe_suffix();
     let tool_dir = context.temp_dir.child("tools");
     let bin_dir = context.temp_dir.child("bin");
     let mut paths = BTreeSet::new();
@@ -2042,7 +2041,7 @@ fn tool_install_git() {
 #[test]
 #[cfg(feature = "test-git-lfs")]
 fn tool_install_git_lfs() {
-    let context = TestContext::new("3.13")
+    let context = uv_test::test_context!("3.13")
         .with_filtered_exe_suffix()
         .with_git_lfs_config();
     let tool_dir = context.temp_dir.child("tools");
@@ -2150,14 +2149,14 @@ fn tool_install_git_lfs() {
     // calls to `git` and `git_metadata` functions which don't have guaranteed execution order.
     // In addition, we can get different error codes depending on where the failure occurs,
     // although we know the error code cannot be 0.
-    let mut filters = context.filters();
-    filters.push((r"exit_code: -?[1-9]\d*", "exit_code: [ERROR_CODE]"));
-    filters.push((
-        "(?s)(----- stderr -----).*?The source distribution `[^`]+` is missing Git LFS artifacts.*",
-        "$1\n[PREFIX]The source distribution `[DISTRIBUTION]` is missing Git LFS artifacts",
-    ));
+    let context = context
+        .with_filter((r"exit_code: -?[1-9]\d*", "exit_code: [ERROR_CODE]"))
+        .with_filter((
+            "(?s)(----- stderr -----).*?The source distribution `[^`]+` is missing Git LFS artifacts.*",
+            "$1\n[PREFIX]The source distribution `[DISTRIBUTION]` is missing Git LFS artifacts",
+        ));
 
-    uv_snapshot!(filters, context.tool_install()
+    uv_snapshot!(context.filters(), context.tool_install()
         .arg("--reinstall")
         .arg("--lfs")
         .arg("test-lfs-repo @ git+https://github.com/astral-sh/test-lfs-repo@54e5eebd3c6851b1353fc7b1e5b4eca11e27581c")
@@ -2196,7 +2195,7 @@ fn tool_install_git_lfs() {
     #[cfg(not(windows))]
     uv_snapshot!(context.filters(), Command::new("test-lfs-repo-assets").env(EnvVars::PATH, bin_dir.as_os_str()), @r#"
     success: false
-    exit_code: 1
+    exit_code: [ERROR_CODE]
     ----- stdout -----
 
     ----- stderr -----
@@ -2215,7 +2214,7 @@ fn tool_install_git_lfs() {
     #[cfg(windows)]
     uv_snapshot!(context.filters(), Command::new("test-lfs-repo-assets").env(EnvVars::PATH, bin_dir.as_os_str()), @r#"
     success: false
-    exit_code: 1
+    exit_code: [ERROR_CODE]
     ----- stdout -----
 
     ----- stderr -----
@@ -2238,7 +2237,7 @@ fn tool_install_git_lfs() {
 /// name conflict.
 #[test]
 fn tool_install_unnamed_conflict() {
-    let context = TestContext::new("3.12").with_filtered_exe_suffix();
+    let context = uv_test::test_context!("3.12").with_filtered_exe_suffix();
     let tool_dir = context.temp_dir.child("tools");
     let bin_dir = context.temp_dir.child("bin");
 
@@ -2262,7 +2261,7 @@ fn tool_install_unnamed_conflict() {
 /// Test installing a tool with a bare URL requirement using `--from`.
 #[test]
 fn tool_install_unnamed_from() {
-    let context = TestContext::new("3.12").with_filtered_exe_suffix();
+    let context = uv_test::test_context!("3.12").with_filtered_exe_suffix();
     let tool_dir = context.temp_dir.child("tools");
     let bin_dir = context.temp_dir.child("bin");
 
@@ -2352,7 +2351,7 @@ fn tool_install_unnamed_from() {
 /// Test installing a tool with a bare URL requirement using `--with`.
 #[test]
 fn tool_install_unnamed_with() {
-    let context = TestContext::new("3.12").with_filtered_exe_suffix();
+    let context = uv_test::test_context!("3.12").with_filtered_exe_suffix();
     let tool_dir = context.temp_dir.child("tools");
     let bin_dir = context.temp_dir.child("bin");
 
@@ -2445,7 +2444,7 @@ fn tool_install_unnamed_with() {
 
 #[test]
 fn tool_install_with_dependencies_from_script() -> Result<()> {
-    let context = TestContext::new("3.12")
+    let context = uv_test::test_context!("3.12")
         .with_filtered_counts()
         .with_filtered_exe_suffix();
     let tool_dir = context.temp_dir.child("tools");
@@ -2571,7 +2570,7 @@ fn tool_install_with_dependencies_from_script() -> Result<()> {
 /// Test installing a tool with additional requirements from a `requirements.txt` file.
 #[test]
 fn tool_install_requirements_txt() {
-    let context = TestContext::new("3.12")
+    let context = uv_test::test_context!("3.12")
         .with_filtered_counts()
         .with_filtered_exe_suffix();
     let tool_dir = context.temp_dir.child("tools");
@@ -2675,7 +2674,7 @@ fn tool_install_requirements_txt() {
 /// Ignore and warn when (e.g.) the `--index-url` argument is a provided `requirements.txt`.
 #[test]
 fn tool_install_requirements_txt_arguments() {
-    let context = TestContext::new("3.12").with_filtered_exe_suffix();
+    let context = uv_test::test_context!("3.12").with_filtered_exe_suffix();
     let tool_dir = context.temp_dir.child("tools");
     let bin_dir = context.temp_dir.child("bin");
 
@@ -2803,7 +2802,7 @@ fn tool_install_requirements_txt_arguments() {
 /// Test upgrading an already installed tool.
 #[test]
 fn tool_install_upgrade() {
-    let context = TestContext::new("3.12")
+    let context = uv_test::test_context!("3.12")
         .with_filtered_counts()
         .with_filtered_exe_suffix();
     let tool_dir = context.temp_dir.child("tools");
@@ -2967,7 +2966,7 @@ fn tool_install_upgrade() {
 /// Test reinstalling tools with varying `--python` requests.
 #[test]
 fn tool_install_python_requests() {
-    let context = TestContext::new_with_versions(&["3.11", "3.12"])
+    let context = uv_test::test_context_with_versions!(&["3.11", "3.12"])
         .with_filtered_counts()
         .with_filtered_exe_suffix();
     let tool_dir = context.temp_dir.child("tools");
@@ -3046,7 +3045,7 @@ fn tool_install_python_requests() {
 #[ignore = "https://github.com/astral-sh/uv/issues/7473"]
 #[test]
 fn tool_install_python_preference() {
-    let context = TestContext::new_with_versions(&["3.11", "3.12"])
+    let context = uv_test::test_context_with_versions!(&["3.11", "3.12"])
         .with_filtered_counts()
         .with_filtered_exe_suffix();
     let tool_dir = context.temp_dir.child("tools");
@@ -3188,7 +3187,7 @@ fn tool_install_python_preference() {
 /// Test preserving a tool environment when new but incompatible requirements are requested.
 #[test]
 fn tool_install_preserve_environment() {
-    let context = TestContext::new("3.12")
+    let context = uv_test::test_context!("3.12")
         .with_filtered_counts()
         .with_filtered_exe_suffix();
     let tool_dir = context.temp_dir.child("tools");
@@ -3254,7 +3253,7 @@ fn tool_install_preserve_environment() {
 #[test]
 #[cfg(unix)]
 fn tool_install_warn_path() {
-    let context = TestContext::new("3.12")
+    let context = uv_test::test_context!("3.12")
         .with_filtered_counts()
         .with_filtered_exe_suffix();
     let tool_dir = context.temp_dir.child("tools");
@@ -3288,7 +3287,7 @@ fn tool_install_warn_path() {
 /// Test installing and reinstalling with an invalid receipt.
 #[test]
 fn tool_install_bad_receipt() -> Result<()> {
-    let context = TestContext::new("3.12")
+    let context = uv_test::test_context!("3.12")
         .with_filtered_counts()
         .with_filtered_exe_suffix();
     let tool_dir = context.temp_dir.child("tools");
@@ -3358,7 +3357,7 @@ fn tool_install_bad_receipt() -> Result<()> {
 /// that isn't properly normalized).
 #[test]
 fn tool_install_malformed_dist_info() {
-    let context = TestContext::new("3.12")
+    let context = uv_test::test_context!("3.12")
         .with_exclude_newer("2025-01-18T00:00:00Z")
         .with_filtered_counts()
         .with_filtered_exe_suffix();
@@ -3435,7 +3434,7 @@ fn tool_install_malformed_dist_info() {
 /// Test installing, then re-installing with different settings.
 #[test]
 fn tool_install_settings() {
-    let context = TestContext::new("3.12")
+    let context = uv_test::test_context!("3.12")
         .with_filtered_counts()
         .with_filtered_exe_suffix();
     let tool_dir = context.temp_dir.child("tools");
@@ -3589,7 +3588,7 @@ fn tool_install_settings() {
 /// Test installing a tool with `uv tool install {package}@{version}`.
 #[test]
 fn tool_install_at_version() {
-    let context = TestContext::new("3.12")
+    let context = uv_test::test_context!("3.12")
         .with_filtered_counts()
         .with_filtered_exe_suffix();
     let tool_dir = context.temp_dir.child("tools");
@@ -3655,7 +3654,7 @@ fn tool_install_at_version() {
 /// Test installing a tool with `uv tool install {package}@latest`.
 #[test]
 fn tool_install_at_latest() {
-    let context = TestContext::new("3.12")
+    let context = uv_test::test_context!("3.12")
         .with_filtered_counts()
         .with_filtered_exe_suffix();
     let tool_dir = context.temp_dir.child("tools");
@@ -3704,7 +3703,7 @@ fn tool_install_at_latest() {
 /// Test installing a tool with `uv tool install {package} --from {package}@latest`.
 #[test]
 fn tool_install_from_at_latest() {
-    let context = TestContext::new("3.12")
+    let context = uv_test::test_context!("3.12")
         .with_exclude_newer("2025-01-18T00:00:00Z")
         .with_filtered_counts()
         .with_filtered_exe_suffix();
@@ -3749,7 +3748,7 @@ fn tool_install_from_at_latest() {
 /// Test installing a tool with `uv tool install {package} --from {package}@{version}`.
 #[test]
 fn tool_install_from_at_version() {
-    let context = TestContext::new("3.12")
+    let context = uv_test::test_context!("3.12")
         .with_exclude_newer("2025-01-18T00:00:00Z")
         .with_filtered_counts()
         .with_filtered_exe_suffix();
@@ -3794,7 +3793,7 @@ fn tool_install_from_at_version() {
 /// Test upgrading an already installed tool via `{package}@{latest}`.
 #[test]
 fn tool_install_at_latest_upgrade() {
-    let context = TestContext::new("3.12")
+    let context = uv_test::test_context!("3.12")
         .with_filtered_counts()
         .with_filtered_exe_suffix();
     let tool_dir = context.temp_dir.child("tools");
@@ -3915,7 +3914,7 @@ fn tool_install_at_latest_upgrade() {
 /// Install a tool with `--constraints`.
 #[test]
 fn tool_install_constraints() -> Result<()> {
-    let context = TestContext::new("3.12")
+    let context = uv_test::test_context!("3.12")
         .with_filtered_counts()
         .with_filtered_exe_suffix();
     let tool_dir = context.temp_dir.child("tools");
@@ -4022,7 +4021,7 @@ fn tool_install_constraints() -> Result<()> {
 /// Install a tool with `--overrides`.
 #[test]
 fn tool_install_overrides() -> Result<()> {
-    let context = TestContext::new("3.12")
+    let context = uv_test::test_context!("3.12")
         .with_filtered_counts()
         .with_filtered_exe_suffix();
     let tool_dir = context.temp_dir.child("tools");
@@ -4086,7 +4085,7 @@ fn tool_install_overrides() -> Result<()> {
 /// `uv tool install python` is not allowed
 #[test]
 fn tool_install_python() {
-    let context = TestContext::new("3.12")
+    let context = uv_test::test_context!("3.12")
         .with_filtered_counts()
         .with_filtered_exe_suffix();
     let tool_dir = context.temp_dir.child("tools");
@@ -4123,7 +4122,7 @@ fn tool_install_python() {
 
 #[test]
 fn tool_install_mismatched_name() {
-    let context = TestContext::new("3.12")
+    let context = uv_test::test_context!("3.12")
         .with_filtered_counts()
         .with_filtered_exe_suffix();
     let tool_dir = context.temp_dir.child("tools");
@@ -4176,9 +4175,10 @@ fn tool_install_mismatched_name() {
 }
 
 /// When installing from an authenticated index, the credentials should be omitted from the receipt.
-#[test]
-fn tool_install_credentials() {
-    let context = TestContext::new("3.12")
+#[tokio::test]
+async fn tool_install_credentials() {
+    let proxy = crate::pypi_proxy::start().await;
+    let context = uv_test::test_context!("3.12")
         .with_exclude_newer("2025-01-18T00:00:00Z")
         .with_filtered_counts()
         .with_filtered_exe_suffix();
@@ -4189,7 +4189,7 @@ fn tool_install_credentials() {
     uv_snapshot!(context.filters(), context.tool_install()
         .arg("executable-application")
          .arg("--index")
-        .arg("https://public:heron@pypi-proxy.fly.dev/basic-auth/simple")
+        .arg(proxy.authenticated_url("public", "heron", "/basic-auth/simple"))
         .env(EnvVars::UV_TOOL_DIR, tool_dir.as_os_str())
         .env(EnvVars::XDG_BIN_HOME, bin_dir.as_os_str())
         .env(EnvVars::PATH, bin_dir.as_os_str()), @"
@@ -4249,16 +4249,17 @@ fn tool_install_credentials() {
         ]
 
         [tool.options]
-        index = [{ url = "https://pypi-proxy.fly.dev/basic-auth/simple", explicit = false, default = false, format = "simple", authenticate = "auto" }]
+        index = [{ url = "http://[LOCALHOST]/basic-auth/simple", explicit = false, default = false, format = "simple", authenticate = "auto" }]
         exclude-newer = "2025-01-18T00:00:00Z"
         "#);
     });
 }
 
 /// When installing from an authenticated index, the credentials should be omitted from the receipt.
-#[test]
-fn tool_install_default_credentials() -> Result<()> {
-    let context = TestContext::new("3.12")
+#[tokio::test]
+async fn tool_install_default_credentials() -> Result<()> {
+    let proxy = crate::pypi_proxy::start().await;
+    let context = uv_test::test_context!("3.12")
         .with_exclude_newer("2025-01-18T00:00:00Z")
         .with_filtered_counts()
         .with_filtered_exe_suffix();
@@ -4267,12 +4268,15 @@ fn tool_install_default_credentials() -> Result<()> {
 
     // Write a `uv.toml` with a default index that has credentials.
     let uv_toml = context.temp_dir.child("uv.toml");
-    uv_toml.write_str(indoc::indoc! {r#"
+    uv_toml.write_str(&format!(
+        indoc::indoc! {r#"
         [[index]]
-        url = "https://public:heron@pypi-proxy.fly.dev/basic-auth/simple"
+        url = "{}"
         default = true
         authenticate = "always"
-    "#})?;
+    "#},
+        proxy.authenticated_url("public", "heron", "/basic-auth/simple")
+    ))?;
 
     // Install `executable-application`
     uv_snapshot!(context.filters(), context.tool_install()
@@ -4337,7 +4341,7 @@ fn tool_install_default_credentials() -> Result<()> {
         ]
 
         [tool.options]
-        index = [{ url = "https://pypi-proxy.fly.dev/basic-auth/simple", explicit = false, default = true, format = "simple", authenticate = "always" }]
+        index = [{ url = "http://[LOCALHOST]/basic-auth/simple", explicit = false, default = true, format = "simple", authenticate = "always" }]
         exclude-newer = "2025-01-18T00:00:00Z"
         "#);
     });
@@ -4354,8 +4358,8 @@ fn tool_install_default_credentials() -> Result<()> {
 
     ----- stderr -----
     error: Failed to upgrade executable-application
-      Caused by: Failed to fetch: `https://pypi-proxy.fly.dev/basic-auth/simple/executable-application/`
-      Caused by: Missing credentials for https://pypi-proxy.fly.dev/basic-auth/simple/executable-application/
+      Caused by: Failed to fetch: `http://[LOCALHOST]/basic-auth/simple/executable-application/`
+      Caused by: Missing credentials for http://[LOCALHOST]/basic-auth/simple/executable-application/
     ");
 
     // Attempt to upgrade.
@@ -4380,7 +4384,7 @@ fn tool_install_default_credentials() -> Result<()> {
 /// Test installing a tool with `--with-executables-from`.
 #[test]
 fn tool_install_with_executables_from() {
-    let context = TestContext::new("3.12")
+    let context = uv_test::test_context!("3.12")
         .with_filtered_counts()
         .with_filtered_exe_suffix();
     let tool_dir = context.temp_dir.child("tools");
@@ -4470,7 +4474,7 @@ fn tool_install_with_executables_from() {
 /// Test installing a tool with `--with-executables-from`, but the package has no entrypoints.
 #[test]
 fn tool_install_with_executables_from_no_entrypoints() {
-    let context = TestContext::new("3.12")
+    let context = uv_test::test_context!("3.12")
         .with_filtered_counts()
         .with_filtered_exe_suffix();
     let tool_dir = context.temp_dir.child("tools");
@@ -4512,7 +4516,7 @@ fn tool_install_with_executables_from_no_entrypoints() {
 
 #[test]
 fn tool_install_find_links() {
-    let context = TestContext::new("3.13").with_filtered_exe_suffix();
+    let context = uv_test::test_context!("3.13").with_filtered_exe_suffix();
     let tool_dir = context.temp_dir.child("tools");
     let bin_dir = context.temp_dir.child("bin");
 
@@ -4622,7 +4626,7 @@ fn tool_install_find_links() {
 
 #[test]
 fn tool_install_python_platform() {
-    let context = TestContext::new("3.12")
+    let context = uv_test::test_context!("3.12")
         .with_filtered_counts()
         .with_filtered_exe_suffix();
     let tool_dir = context.temp_dir.child("tools");

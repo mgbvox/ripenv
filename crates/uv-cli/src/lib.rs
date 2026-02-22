@@ -1148,7 +1148,8 @@ pub enum ProjectCommand {
     Lock(LockArgs),
     /// Export the project's lockfile to an alternate format.
     ///
-    /// At present, both `requirements.txt` and `pylock.toml` (PEP 751) formats are supported.
+    /// At present, `requirements.txt`, `pylock.toml` (PEP 751) and CycloneDX v1.5 JSON output
+    /// formats are supported.
     ///
     /// The project is re-locked before exporting unless the `--locked` or `--frozen` flag is
     /// provided.
@@ -3531,7 +3532,7 @@ pub struct RunArgs {
     ///
     /// uv includes the groups defined in `tool.uv.default-groups` by default.
     /// This disables that option, however, specific groups can still be included with `--group`.
-    #[arg(long, env = EnvVars::UV_NO_DEFAULT_GROUPS)]
+    #[arg(long, env = EnvVars::UV_NO_DEFAULT_GROUPS, value_parser = clap::builder::BoolishValueParser::new())]
     pub no_default_groups: bool,
 
     /// Only include dependencies from the specified dependency group.
@@ -3869,7 +3870,7 @@ pub struct SyncArgs {
     ///
     /// uv includes the groups defined in `tool.uv.default-groups` by default.
     /// This disables that option, however, specific groups can still be included with `--group`.
-    #[arg(long, env = EnvVars::UV_NO_DEFAULT_GROUPS)]
+    #[arg(long, env = EnvVars::UV_NO_DEFAULT_GROUPS, value_parser = clap::builder::BoolishValueParser::new())]
     pub no_default_groups: bool,
 
     /// Only include dependencies from the specified dependency group.
@@ -4684,7 +4685,7 @@ pub struct TreeArgs {
     ///
     /// uv includes the groups defined in `tool.uv.default-groups` by default.
     /// This disables that option, however, specific groups can still be included with `--group`.
-    #[arg(long, env = EnvVars::UV_NO_DEFAULT_GROUPS)]
+    #[arg(long, env = EnvVars::UV_NO_DEFAULT_GROUPS, value_parser = clap::builder::BoolishValueParser::new())]
     pub no_default_groups: bool,
 
     /// Only include dependencies from the specified dependency group.
@@ -4769,7 +4770,6 @@ pub struct TreeArgs {
 
 #[derive(Args)]
 pub struct ExportArgs {
-    #[expect(clippy::doc_markdown)]
     /// The format to which `uv.lock` should be exported.
     ///
     /// Supports `requirements.txt`, `pylock.toml` (PEP 751) and CycloneDX v1.5 JSON output formats.
@@ -4861,7 +4861,7 @@ pub struct ExportArgs {
     ///
     /// uv includes the groups defined in `tool.uv.default-groups` by default.
     /// This disables that option, however, specific groups can still be included with `--group`.
-    #[arg(long, env = EnvVars::UV_NO_DEFAULT_GROUPS)]
+    #[arg(long, env = EnvVars::UV_NO_DEFAULT_GROUPS, value_parser = clap::builder::BoolishValueParser::new())]
     pub no_default_groups: bool,
 
     /// Only include dependencies from the specified dependency group.
@@ -5076,9 +5076,20 @@ pub struct FormatArgs {
 
     /// The version of Ruff to use for formatting.
     ///
-    /// By default, a version of Ruff pinned by uv will be used.
+    /// Accepts either a version (e.g., `0.8.2`) which will be treated as an exact pin,
+    /// a version specifier (e.g., `>=0.8.0`), or `latest` to use the latest available version.
+    ///
+    /// By default, a constrained version range of Ruff will be used (e.g., `>=0.15,<0.16`).
     #[arg(long, value_hint = ValueHint::Other)]
     pub version: Option<String>,
+
+    /// Limit candidate Ruff versions to those released prior to the given date.
+    ///
+    /// Accepts a superset of [RFC 3339](https://www.rfc-editor.org/rfc/rfc3339.html) (e.g.,
+    /// `2006-12-02T02:07:43Z`) or local date in the same format (e.g. `2006-12-02`), as well as
+    /// durations relative to "now" (e.g., `-1 week`).
+    #[arg(long, env = EnvVars::UV_EXCLUDE_NEWER)]
+    pub exclude_newer: Option<ExcludeNewerValue>,
 
     /// Additional arguments to pass to Ruff.
     ///
@@ -5094,6 +5105,13 @@ pub struct FormatArgs {
     /// project.
     #[arg(long)]
     pub no_project: bool,
+
+    /// Display the version of Ruff that will be used for formatting.
+    ///
+    /// This is useful for verifying which version was resolved when using version constraints
+    /// (e.g., `--version ">=0.8.0"`) or `--version latest`.
+    #[arg(long, hide = true)]
+    pub show_version: bool,
 }
 
 #[derive(Args)]
